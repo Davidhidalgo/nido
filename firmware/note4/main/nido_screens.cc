@@ -225,8 +225,15 @@ void DrawHome(HearthCanvas& canvas,const HomeDay* day,const char* today,bool upd
     const auto box=[&](int x,int y,int w,int h) {
         Rounded(canvas,x+3,y+4,w,h,5,false,4);Rounded(canvas,x,y,w,h,5,true);
     };
+    const auto attenuate=[&](int x,int y,int w,int h) {
+        for(int py=y;py<y+h+4;++py)for(int px=x;px<x+w+3;++px)
+            if(px%2==0 && py%2==0)canvas.Pixel(px,py,false);
+    };
     for(int i=0;i<2;++i) {
-        const int x=i ? 204 : 16;box(x,42,180,70);TextSmall(canvas,x+9,49,i ? "cena" : "comida");
+        const int x=i ? 204 : 16;box(x,42,180,70);
+        if(day && day->available && today && std::strcmp(day->date,today)==0 &&
+           (i ? (*day->dinner && day->dinner_past) : (*day->lunch && day->lunch_past)))attenuate(x,42,180,70);
+        TextSmall(canvas,x+9,49,i ? "cena" : "comida");
         const char* meal=day && day->available ? (i ? day->dinner : day->lunch) : "";
         Wrap(canvas,68,*meal ? meal : day && day->available ? "Sin planificar" : "Sin datos",1,2,x+9,162);
     }
@@ -259,8 +266,7 @@ void DrawHome(HearthCanvas& canvas,const HomeDay* day,const char* today,bool upd
         const bool future_day=entries[i].source!=day;
         if(future_day) {
             // Attenuate the border/shadow before drawing crisp text.
-            for(int py=y;py<y+h+4;++py)for(int px=x;px<x+w+3;++px)
-                if(px%2==0 && py%2==0)canvas.Pixel(px,py,false);
+            attenuate(x,y,w,h);
         }
         const bool multiple_days=*event.start_date && *event.end_date &&
             std::strcmp(event.start_date,event.end_date)!=0;

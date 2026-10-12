@@ -1,6 +1,6 @@
 # Spec: OTA directa desde GitHub al entrar en mantenimiento
 
-Estado: implementado en firmware desde `nido-ota-0.4.2`, con pruebas nativas y compilación ESP-IDF. La verificación física de descarga e instalación sigue pendiente. La release `nido-ota-0.4.1` solo admite el recorrido mediante el plugin.
+Estado: implementado en firmware desde `nido-ota-0.4.2`, con pruebas nativas y compilación ESP-IDF. El usuario confirmó la instalación física mediante OTA directa de 0.4.4 a 0.4.5 el 2026-10-12, después de corregir el búfer de petición para las redirecciones largas. La recuperación ante cortes y el rollback provocado siguen pendientes de prueba física. La release `nido-ota-0.4.1` solo admite el recorrido mediante el plugin.
 
 ## Repositorio y artefacto
 

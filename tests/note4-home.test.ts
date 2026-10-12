@@ -216,3 +216,52 @@ it("projects only configured short labels, preserving origin without exposing ca
   expect(JSON.stringify(snapshot)).not.toContain("Nombre largo privado");
   expect(new Set(snapshot.days[7].events.map((event) => event.key)).size).toBe(2);
 });
+
+it.each([
+  ["2026-10-02T14:29:59Z", false, false],
+  ["2026-10-02T14:30:00Z", true, false],
+  ["2026-10-02T21:15:00Z", true, true],
+])(
+  "attenuates planned meals two hours after configured local time at %s",
+  async (stamp, lunchPast, dinnerPast) => {
+    const settings = {
+      ...config,
+      mealTimes: { lunch: "14:30", dinner: "21:15", durationMinutes: 60 },
+    };
+    const meals = [
+      timed("l", "2026-10-02T14:30:00+02:00", "2026-10-02T15:30:00+02:00", "Comida · Sopa"),
+      timed("d", "2026-10-02T21:15:00+02:00", "2026-10-02T22:15:00+02:00", "Cena · Tortilla"),
+      timed("y", "2026-10-01T14:30:00+02:00", "2026-10-01T15:30:00+02:00", "Comida · Arroz"),
+    ];
+    const home = await note4Home(port(meals, []), settings, undefined, new Date(stamp));
+    expect(home.days.find((d) => d.date === home.today)).toMatchObject({
+      lunchPast,
+      dinnerPast,
+      lunch: "Sopa",
+      dinner: "Tortilla",
+    });
+    expect(
+      home.days.filter((d) => d.date !== home.today).every((d) => !d.lunchPast && !d.dinnerPast),
+    ).toBe(true);
+  },
+);
+
+it("does not wrap a late dinner's grace period into the same day or dim unplanned meals", async () => {
+  const settings = {
+    ...config,
+    mealTimes: { lunch: "14:00", dinner: "23:00", durationMinutes: 60 },
+  };
+  const meals = [
+    timed("d", "2026-10-02T23:00:00+02:00", "2026-10-03T00:00:00+02:00", "Cena · Sopa"),
+  ];
+  const home = await note4Home(
+    port(meals, []),
+    settings,
+    undefined,
+    new Date("2026-10-02T21:59:00Z"),
+  );
+  expect(home.days.find((d) => d.date === home.today)).toMatchObject({
+    lunchPast: false,
+    dinnerPast: false,
+  });
+});

@@ -88,6 +88,11 @@ int main(int argc,char** argv) {
     cJSON_AddStringToObject(span,"endDate","2026-10-03");
     cJSON_AddItemToArray(cJSON_GetObjectItem(cJSON_GetArrayItem(days,0),"events"),span);
     assert(ParseHome(root,*home));assert(std::strcmp(home->days[0].events[0].end_date,"2026-10-03")==0);assert(std::strcmp(home->days[0].events[0].calendar_label,"Casa")==0);auto saved=*home;
+    assert(!home->days[0].lunch_past && !home->days[0].dinner_past); // Older bridge defaults.
+    auto* first_day=cJSON_GetArrayItem(days,0);cJSON_AddStringToObject(first_day,"lunchPast","true");
+    assert(!ParseHome(root,*home));assert(std::memcmp(&saved,home.get(),sizeof(saved))==0);
+    cJSON_ReplaceItemInObject(first_day,"lunchPast",cJSON_CreateBool(true));assert(ParseHome(root,*home));assert(home->days[0].lunch_past);
+    cJSON_DeleteItemFromObject(first_day,"lunchPast");assert(ParseHome(root,*home));
     cJSON_ReplaceItemInObject(span,"calendarLabel",cJSON_CreateString(std::string(65,'x').c_str()));assert(!ParseHome(root,*home));assert(std::memcmp(&saved,home.get(),sizeof(saved))==0);
     cJSON_ReplaceItemInObject(span,"calendarLabel",cJSON_CreateString("Casa"));
     cJSON_ReplaceItemInObject(cJSON_GetArrayItem(days,0),"date",cJSON_CreateString("2026-02-30"));assert(!ParseHome(root,*home));assert(std::memcmp(&saved,home.get(),sizeof(saved))==0);cJSON_Delete(root);
@@ -98,6 +103,17 @@ int main(int argc,char** argv) {
     const char* calendars[]={"Escuela","Casa","Álex","Familia","Blanca","Casa"};
     for(int i=0;i<6;++i)std::strcpy(day.events[i].calendar_label,calendars[i]);
     for(int count=0;count<=6;++count){day.event_count=count;DrawHome(canvas,&day,home->today);if(argc>1)Save(std::string(argv[1])+"/daily-"+std::to_string(count)+".pgm",canvas);}
+    DrawHome(canvas,&day,home->today);HearthCanvas before_meals=canvas;
+    day.lunch_past=true;DrawHome(canvas,&day,home->today);
+    assert(std::memcmp(canvas.data(),before_meals.data(),15000)!=0);
+    // Dimming changes only decoration, never meal text or the agenda.
+    assert(std::memcmp(canvas.data()+49*50+4,before_meals.data()+49*50+4,19)==0);
+    for(int y=68;y<100;++y)assert(std::memcmp(canvas.data()+y*50+4,before_meals.data()+y*50+4,19)==0);
+    assert(std::memcmp(canvas.data()+118*50,before_meals.data()+118*50,182*50)==0);
+    if(argc>1)Save(std::string(argv[1])+"/daily-lunch-past.pgm",canvas);
+    day.dinner_past=true;DrawHome(canvas,&day,home->today);if(argc>1)Save(std::string(argv[1])+"/daily-meals-past.pgm",canvas);
+    DrawHome(canvas,&day,"2026-10-03");day.lunch_past=day.dinner_past=false;DrawHome(before_meals,&day,"2026-10-03");
+    assert(std::memcmp(canvas.data(),before_meals.data(),15000)==0);
     DrawHome(background,&day,home->today);DeviceCard card={};std::strcpy(card.status,"question");std::strcpy(card.type,"binary");std::strcpy(card.title,"¿Cambio la cena?");std::strcpy(card.body,"Puedo sustituir la tortilla por sopa de verduras.");std::strcpy(card.labels[0],"Sí, cambiarla");std::strcpy(card.labels[1],"No, conservarla");
     DrawModal(canvas,background,card);
     assert(std::memcmp(canvas.data(),background.data(),34*50)!=0); // The veil includes the header.

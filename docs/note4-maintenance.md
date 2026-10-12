@@ -136,7 +136,7 @@ Referencias del contrato HTTP: [última release](https://docs.github.com/en/rest
 
 Desde `nido-ota-0.4.2`, frontal + inferior cinco segundos y soltar consulta la última release pública de `Davidhidalgo/nido` usando la Wi-Fi guardada. Si encuentra una versión posterior, ofrece «Actualizar» (lateral superior) y «Configurar» (inferior). El frontal o treinta segundos sin elegir abren la configuración. Sin novedades, red o reloj válido, se muestra el QR habitual. No necesita que el plugin descargue el archivo.
 
-La descarga valida TLS, redirecciones, tamaño y paquete firmado antes de activar la aplicación inactiva. Conserva Wi-Fi y vinculación. El repositorio está fijado al compilar, sin token de GitHub; los ajustes GitHub del plugin son independientes. La prueba física de este nuevo recorrido sigue pendiente. [Contrato y límites](note4-github-ota-spec.md).
+La descarga valida TLS, redirecciones, tamaño y paquete firmado antes de activar la aplicación inactiva. Conserva Wi-Fi y vinculación. El repositorio está fijado al compilar, sin token de GitHub; los ajustes GitHub del plugin son independientes. La instalación OTA directa de 0.4.4 a 0.4.5 fue confirmada por el usuario el 2026-10-12; las pruebas físicas de cortes y recuperación siguen pendientes. [Contrato y límites](note4-github-ota-spec.md).
 
 ## Verificación reproducible
 

@@ -39,6 +39,10 @@ bool ParseHome(const cJSON* json,HomeSnapshot& snapshot) {
            !String(item,"label",day.label,sizeof(day.label))||!String(item,"lunch",day.lunch,sizeof(day.lunch))||
            !String(item,"dinner",day.dinner,sizeof(day.dinner))||!cJSON_IsArray(events)||cJSON_GetArraySize(events)>6||
            !cJSON_IsNumber(more)||!std::isfinite(more->valuedouble)||more->valuedouble<0||more->valuedouble>100000||std::floor(more->valuedouble)!=more->valuedouble)return false;
+        const auto* lunch_past=cJSON_GetObjectItemCaseSensitive(item,"lunchPast");
+        const auto* dinner_past=cJSON_GetObjectItemCaseSensitive(item,"dinnerPast");
+        if((lunch_past && !cJSON_IsBool(lunch_past)) || (dinner_past && !cJSON_IsBool(dinner_past)))return false;
+        day.lunch_past=cJSON_IsTrue(lunch_past);day.dinner_past=cJSON_IsTrue(dinner_past);
         day.available=true;day.more=more->valueint;day.event_count=cJSON_GetArraySize(events);
         for(int j=0;j<day.event_count;++j) {
             auto& event=day.events[j];const auto* e=cJSON_GetArrayItem(events,j);

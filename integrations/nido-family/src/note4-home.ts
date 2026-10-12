@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import {
   menuSlot,
+  defaultMealTimes,
   NidoError,
   type CalendarEvent,
   type CalendarPort,
@@ -28,6 +29,8 @@ export type HomeDay = {
   label: string;
   lunch: string;
   dinner: string;
+  lunchPast: boolean;
+  dinnerPast: boolean;
   events: {
     key: string;
     startDate: string;
@@ -92,6 +95,12 @@ export async function note4Home(
     minute: "2-digit",
     hourCycle: "h23",
   });
+  const minutes = (value: string) => {
+    const [hour, minute] = value.split(":").map(Number);
+    return hour * 60 + minute;
+  };
+  const nowMinutes = minutes(clock.format(now));
+  const mealTimes = config.mealTimes ?? defaultMealTimes;
   const label = new Intl.DateTimeFormat("es-ES", {
     timeZone: "UTC",
     weekday: "long",
@@ -109,6 +118,8 @@ export async function note4Home(
         .replace(/\./gu, ""),
       lunch: "",
       dinner: "",
+      lunchPast: false,
+      dinnerPast: false,
       events: [],
       more: 0,
     };
@@ -124,6 +135,9 @@ export async function note4Home(
       if (day[key]) throw new NidoError("CONFLICT", "Hay más de un plato para el mismo horario.");
       day[key] = clip(meal.summary.replace(/^(Comida|Cena)\s*·\s*/iu, ""), 160);
     }
+    day.lunchPast = date === today && !!day.lunch && nowMinutes >= minutes(mealTimes.lunch) + 120;
+    day.dinnerPast =
+      date === today && !!day.dinner && nowMinutes >= minutes(mealTimes.dinner) + 120;
     const visible = events
       .filter((event) => {
         if (event.status === "cancelled") return false;
