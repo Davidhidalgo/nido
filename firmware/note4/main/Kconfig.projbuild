@@ -1,0 +1,19 @@
+menu "Nido NOTE4 bring-up"
+config NIDO_DEVICE_ENABLED
+    bool "Connect audio and cards to the local Nido server"
+    default n
+    help
+        Credentials are provisioned through the device maintenance access point.
+config NIDO_RECORD_MAX_SECONDS
+    int "Maximum recording duration"
+    range 2 30
+    default 12
+config NIDO_RTC_WAKE_TEST_SECONDS
+    int "One-shot RTC wake test, zero disables"
+    range 0 255
+    default 0
+    help
+        Arms the PCF8563 countdown on the first sleep after a cold boot.
+        The ESP timer provides a fallback five seconds later. This is a
+        diagnostic test, not a periodic network or display refresh.
+endmenu

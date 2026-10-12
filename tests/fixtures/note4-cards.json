@@ -1,0 +1,264 @@
+[
+  {
+    "name": "list-menu",
+    "card": {
+      "operation": "append",
+      "cardId": "list-menu",
+      "status": "done",
+      "title": "Menú de mañana",
+      "view": {
+        "type": "list",
+        "items": [
+          {
+            "label": "Comida",
+            "detail": "Arroz con verduras"
+          },
+          {
+            "label": "Cena",
+            "detail": "Tortilla con pimientos y ensalada"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "list-agenda",
+    "card": {
+      "operation": "append",
+      "cardId": "list-agenda",
+      "status": "done",
+      "title": "La tarde del jueves",
+      "view": {
+        "type": "list",
+        "items": [
+          {
+            "label": "17:00 · Reunión de I2",
+            "detail": "Escuela infantil"
+          },
+          {
+            "label": "18:30 · Biblioteca",
+            "detail": "Devolver los cuentos"
+          },
+          {
+            "label": "19:00 · Cena",
+            "detail": "Crema de calabaza"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "list-one",
+    "card": {
+      "operation": "append",
+      "cardId": "list-one",
+      "status": "done",
+      "title": "Una idea para la cena",
+      "view": {
+        "type": "list",
+        "items": [
+          {
+            "label": "Tortilla con verduras",
+            "detail": "Pimientos y calabacín, con una ensalada sencilla al lado."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "list-labels",
+    "card": {
+      "operation": "append",
+      "cardId": "list-labels",
+      "status": "done",
+      "title": "Tres propuestas",
+      "view": {
+        "type": "list",
+        "items": [
+          {
+            "label": "Arroz con verduras"
+          },
+          {
+            "label": "Lentejas con calabaza"
+          },
+          {
+            "label": "Tortilla con ensalada"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "facts",
+    "card": {
+      "operation": "append",
+      "cardId": "facts",
+      "status": "done",
+      "title": "La cita, de un vistazo",
+      "view": {
+        "type": "facts",
+        "items": [
+          {
+            "label": "Cuándo",
+            "value": "Jueves 15 de octubre · 17:00–18:00"
+          },
+          {
+            "label": "Dónde",
+            "value": "L’escola bressol"
+          },
+          {
+            "label": "Duración",
+            "value": "Una hora · estimada"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "facts-two",
+    "card": {
+      "operation": "append",
+      "cardId": "facts-two",
+      "status": "done",
+      "title": "Preparado para mañana",
+      "view": {
+        "type": "facts",
+        "items": [
+          {
+            "label": "Comida",
+            "value": "Arroz con verduras"
+          },
+          {
+            "label": "Cena",
+            "value": "Tortilla con pimientos y ensalada"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "compare",
+    "card": {
+      "operation": "append",
+      "cardId": "compare",
+      "status": "done",
+      "title": "Una cena más ligera",
+      "view": {
+        "type": "compare",
+        "beforeLabel": "Opción habitual",
+        "afterLabel": "Alternativa",
+        "before": "Pasta con salsa de queso",
+        "after": "Crema de calabaza y tortilla con verduras"
+      }
+    }
+  },
+  {
+    "name": "compare-long",
+    "card": {
+      "operation": "append",
+      "cardId": "compare-long",
+      "status": "done",
+      "title": "Dos propuestas para la cena del fin de semana",
+      "view": {
+        "type": "compare",
+        "beforeLabel": "Primera propuesta",
+        "afterLabel": "Segunda propuesta",
+        "before": "Merluza al horno con patatas, judías verdes y una ensalada para compartir",
+        "after": "Tortilla de calabacín con pimientos asados, pan integral y ensalada de tomate"
+      }
+    }
+  },
+  {
+    "name": "highlight",
+    "card": {
+      "operation": "append",
+      "cardId": "highlight",
+      "status": "done",
+      "title": "La tarde está libre",
+      "view": {
+        "type": "highlight",
+        "value": "Desde las 18:00",
+        "caption": "Jueves 15 de octubre",
+        "body": "No hay más citas en la agenda consultada."
+      }
+    }
+  },
+  {
+    "name": "highlight-number",
+    "card": {
+      "operation": "append",
+      "cardId": "highlight-number",
+      "status": "done",
+      "title": "Menú organizado",
+      "view": {
+        "type": "highlight",
+        "value": "3 cenas",
+        "caption": "Para los próximos tres días",
+        "body": "Tortilla, crema de calabaza y arroz con verduras."
+      }
+    }
+  },
+  {
+    "name": "highlight-long",
+    "card": {
+      "operation": "append",
+      "cardId": "highlight-long",
+      "status": "done",
+      "title": "Una respuesta con contexto",
+      "view": {
+        "type": "highlight",
+        "value": "Todo preparado para el fin de semana",
+        "caption": "Comidas sencillas para compartir en casa",
+        "body": "Esta vista comprueba el ajuste de una frase larga en el bloque destacado."
+      }
+    }
+  },
+  {
+    "name": "partial",
+    "card": {
+      "operation": "append",
+      "cardId": "partial",
+      "status": "partial",
+      "title": "Parte del menú está lista",
+      "view": {
+        "type": "list",
+        "items": [
+          {
+            "label": "Viernes · confirmado",
+            "detail": "Tortilla con ensalada"
+          },
+          {
+            "label": "Sábado · pendiente",
+            "detail": "No se ha podido completar el cambio"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "list-long-title",
+    "card": {
+      "operation": "append",
+      "cardId": "list-long-title",
+      "status": "done",
+      "title": "La agenda familiar para el próximo jueves por la tarde",
+      "view": {
+        "type": "list",
+        "items": [
+          {
+            "label": "17:00 · Reunión de I2",
+            "detail": "Escuela infantil"
+          },
+          {
+            "label": "18:30 · Biblioteca",
+            "detail": "Devolver los cuentos"
+          },
+          {
+            "label": "19:00 · Cena",
+            "detail": "Crema de calabaza"
+          }
+        ]
+      }
+    }
+  }
+]

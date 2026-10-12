@@ -1,0 +1,42 @@
+{
+  "docs/assets/branding/nido-logo-concept-01.png": {
+    "sha256": "f80d4bee58e14bc30c50fa74112440107f2eb280463d24424e5d0a3f4b0f1992",
+    "description": "Logo ilustrado de Nido; sin personas reales. Metadatos C2PA de procedencia de OpenAI."
+  },
+  "docs/assets/note4-design/error-v2.png": {
+    "sha256": "b86b67b171e95281162bcd742f664fbc2856a2af3c75792c8c0752524a6c19a9",
+    "description": "Render de diseño NOTE4 con menú, nombres y agenda ficticios; PNG sin metadatos personales."
+  },
+  "docs/assets/note4-design/five-events-v2.png": {
+    "sha256": "030bf5c184429ccc4d9fab5f79244f4792f279c59747011bab2592539e859cb2",
+    "description": "Render de diseño NOTE4 con menú, nombres y agenda ficticios; PNG sin metadatos personales."
+  },
+  "docs/assets/note4-design/four-events-v2.png": {
+    "sha256": "1ed2c9878ea505b9c63b76db919b4b7377633ce8dbc407b14b1a48b27341620e",
+    "description": "Render de diseño NOTE4 con menú, nombres y agenda ficticios; PNG sin metadatos personales."
+  },
+  "docs/assets/note4-design/six-events-v2.png": {
+    "sha256": "001a2b69d890802504f415c853dbb49d90bc4d29f21911b9e72ef7008a49dbf9",
+    "description": "Render de diseño NOTE4 con menú, nombres y agenda ficticios; PNG sin metadatos personales."
+  },
+  "docs/assets/note4-design/updating-v2.png": {
+    "sha256": "2eb362ee713b8c8bd9af600962c3d4e8779db66d58627dac652d47de7a3a54c5",
+    "description": "Render de diseño NOTE4 con menú, nombres y agenda ficticios; PNG sin metadatos personales."
+  },
+  "docs/assets/note4-sounds/01-grabacion.wav": {
+    "sha256": "cd902ac253a912a686b6735ef4f3ddb351eee0b8e9575aaaeb1e9c9dd2c7bb3e",
+    "description": "Aviso electrónico sintético del dispositivo; PCM mono, sin voz ni metadatos adicionales."
+  },
+  "docs/assets/note4-sounds/02-pregunta.wav": {
+    "sha256": "051936d0da960cfda57d7475808d6daa7ed78a9da604a262be134f6c6f1daab6",
+    "description": "Aviso electrónico sintético del dispositivo; PCM mono, sin voz ni metadatos adicionales."
+  },
+  "docs/assets/note4-sounds/03-respuesta.wav": {
+    "sha256": "63944bee717191103be17d330346e8d0c9ed5317f1d35e84db6f1c5e9880422c",
+    "description": "Aviso electrónico sintético del dispositivo; PCM mono, sin voz ni metadatos adicionales."
+  },
+  "docs/assets/note4-sounds/04-error.wav": {
+    "sha256": "c2af053571050db9dc310f41f27f0a9dba1bc620ef75d774bedff7d1f01df44b",
+    "description": "Aviso electrónico sintético del dispositivo; PCM mono, sin voz ni metadatos adicionales."
+  }
+}

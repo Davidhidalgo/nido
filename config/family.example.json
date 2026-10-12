@@ -1,0 +1,13 @@
+{
+  "mode": "demo",
+  "menuCalendarId": "demo-menu",
+  "familyCalendarId": "demo-family",
+  "writesEnabled": true,
+  "timeZone": "Europe/Madrid",
+  "members": [],
+  "mealTimes": {
+    "lunch": "13:00",
+    "dinner": "19:00",
+    "durationMinutes": 60
+  }
+}

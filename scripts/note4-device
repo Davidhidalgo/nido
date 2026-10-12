@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+NIDO_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+export IDF_PATH="$NIDO_ROOT/.runtime/esp-idf"
+export IDF_TOOLS_PATH="$NIDO_ROOT/.runtime/esp-tools"
+if [[ "${1:-}" == -- ]]; then shift; fi
+set +u
+source "$IDF_PATH/export.sh" >/dev/null
+set -u
+exec python "$NIDO_ROOT/scripts/note4-device.py" "$@"

@@ -1,0 +1,49 @@
+<style>
+  .nido-menu { gap: 8px; }
+  .nido-menu__heading { width: 100%; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .nido-menu__heading .title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .nido-menu__table { width: 100%; table-layout: fixed; }
+  .nido-menu__table th { height: 28px; text-align: left; }
+  .nido-menu__table td { height: 44px; padding: 2px 8px; vertical-align: middle; }
+  .nido-menu__table th:first-child, .nido-menu__table td:first-child { padding-left: 0; }
+  .nido-menu__day { width: 18%; }
+  .nido-menu__meal { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; max-height: 40px; overflow: hidden; overflow-wrap: anywhere; white-space: normal; font-size: 17px; line-height: 20px; }
+  .nido-menu__date { display: block; font-size: 13px; line-height: 16px; }
+</style>
+
+<div class="layout layout--col layout--start layout--stretch-x nido-menu">
+  <div class="nido-menu__heading">
+    <span class="title">{{ title | escape }}</span>
+    {% if demo %}<span class="label">DEMO</span>{% endif %}
+  </div>
+  <table class="table nido-menu__table">
+    <colgroup>
+      <col class="nido-menu__day">
+      <col>
+      <col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th><span class="label">Día</span></th>
+        <th><span class="label">Comida</span></th>
+        <th><span class="label">Cena</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for day in days limit: 7 %}
+      <tr>
+        <td>
+          <span class="label">{{ day.label | escape }}</span>
+          <span class="nido-menu__date">{{ day.date | escape }}</span>
+        </td>
+        <td><span class="nido-menu__meal">{{ day.lunch | default: 'Sin planificar' | escape }}</span></td>
+        <td><span class="nido-menu__meal">{{ day.dinner | default: 'Sin planificar' | escape }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="title_bar">
+  <span class="title">Nido · {{ range | escape }}</span>
+  <span class="instance">Actualizado {{ updated | escape }}</span>
+</div>

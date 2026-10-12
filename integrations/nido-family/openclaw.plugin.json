@@ -1,0 +1,371 @@
+{
+  "id": "nido-family",
+  "name": "Nido Family",
+  "description": "Calendarios y preferencias familiares con permisos por agente.",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "setup": {
+        "type": "object",
+        "required": [
+          "version",
+          "requestId",
+          "requestHash",
+          "members"
+        ],
+        "properties": {
+          "version": {
+            "type": "number",
+            "const": 1
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "requestHash": {
+            "type": "string"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "mode": {
+        "anyOf": [
+          {
+            "type": "string",
+            "const": "demo"
+          },
+          {
+            "type": "string",
+            "const": "google"
+          }
+        ]
+      },
+      "dataDir": {
+        "type": "string",
+        "minLength": 1
+      },
+      "note4Maintenance": {
+        "type": "object",
+        "properties": {
+          "publicKeyFile": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bridgeConfigFile": {
+            "type": "string",
+            "minLength": 1
+          },
+          "github": {
+            "type": "object",
+            "required": [
+              "repository"
+            ],
+            "properties": {
+              "repository": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 140
+              },
+              "tokenEnv": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "familyConfigFile": {
+        "type": "string",
+        "minLength": 1
+      },
+      "menuCalendarId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "familyCalendarId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "agendaCalendarIds": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "maxItems": 10,
+        "uniqueItems": true
+      },
+      "calendarAccess": {
+        "type": "object",
+        "properties": {
+          "menu": {
+            "type": "object",
+            "required": [
+              "defaultCalendar",
+              "read",
+              "write"
+            ],
+            "properties": {
+              "defaultCalendar": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "menu"
+                  },
+                  {
+                    "type": "string",
+                    "const": "family"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^calendar:.+$",
+                    "maxLength": 2048
+                  }
+                ],
+                "description": "Referencia exacta devuelta por nido_calendars_list o por el contexto reciente. No sustituir un calendario personal por family."
+              },
+              "read": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "menu"
+                    },
+                    {
+                      "type": "string",
+                      "const": "family"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^calendar:.+$",
+                      "maxLength": 2048
+                    }
+                  ],
+                  "description": "Referencia exacta devuelta por nido_calendars_list o por el contexto reciente. No sustituir un calendario personal por family."
+                },
+                "maxItems": 12,
+                "uniqueItems": true
+              },
+              "write": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "menu"
+                    },
+                    {
+                      "type": "string",
+                      "const": "family"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^calendar:.+$",
+                      "maxLength": 2048
+                    }
+                  ],
+                  "description": "Referencia exacta devuelta por nido_calendars_list o por el contexto reciente. No sustituir un calendario personal por family."
+                },
+                "maxItems": 12,
+                "uniqueItems": true
+              }
+            },
+            "additionalProperties": false
+          },
+          "agenda": {
+            "type": "object",
+            "required": [
+              "defaultCalendar",
+              "read",
+              "write"
+            ],
+            "properties": {
+              "defaultCalendar": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "menu"
+                  },
+                  {
+                    "type": "string",
+                    "const": "family"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^calendar:.+$",
+                    "maxLength": 2048
+                  }
+                ],
+                "description": "Referencia exacta devuelta por nido_calendars_list o por el contexto reciente. No sustituir un calendario personal por family."
+              },
+              "read": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "menu"
+                    },
+                    {
+                      "type": "string",
+                      "const": "family"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^calendar:.+$",
+                      "maxLength": 2048
+                    }
+                  ],
+                  "description": "Referencia exacta devuelta por nido_calendars_list o por el contexto reciente. No sustituir un calendario personal por family."
+                },
+                "maxItems": 12,
+                "uniqueItems": true
+              },
+              "write": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "menu"
+                    },
+                    {
+                      "type": "string",
+                      "const": "family"
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^calendar:.+$",
+                      "maxLength": 2048
+                    }
+                  ],
+                  "description": "Referencia exacta devuelta por nido_calendars_list o por el contexto reciente. No sustituir un calendario personal por family."
+                },
+                "maxItems": 12,
+                "uniqueItems": true
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "calendarNames": {
+        "type": "object",
+        "patternProperties": {
+          "^.*$": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
+      "calendarShortNames": {
+        "type": "object",
+        "patternProperties": {
+          "^.*$": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16
+          }
+        }
+      },
+      "writesEnabled": {
+        "type": "boolean"
+      },
+      "timeZone": {
+        "type": "string",
+        "minLength": 1
+      },
+      "mealTimes": {
+        "type": "object",
+        "required": [
+          "lunch",
+          "dinner",
+          "durationMinutes"
+        ],
+        "properties": {
+          "lunch": {
+            "type": "string",
+            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+          },
+          "dinner": {
+            "type": "string",
+            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 240
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "activation": {
+    "onStartup": true
+  },
+  "controlUi": {
+    "entry": "dist/control-ui/4be4d59ea646ecbabdda74c91a6c0ff089a499d6e32f418bef1641e5d5361c4a/index.js"
+  },
+  "contracts": {
+    "tools": [
+      "nido_calendars_list",
+      "nido_calendar_list",
+      "nido_calendar_get",
+      "nido_calendar_create",
+      "nido_calendar_update",
+      "nido_calendar_delete",
+      "nido_preferences_list",
+      "nido_preferences_set",
+      "nido_preferences_delete",
+      "note4_mostrar"
+    ],
+    "trustedToolPolicies": [
+      "nido-session-scope"
+    ]
+  },
+  "toolMetadata": {
+    "nido_calendars_list": {
+      "optional": true
+    },
+    "nido_calendar_list": {
+      "optional": true
+    },
+    "nido_calendar_get": {
+      "optional": true
+    },
+    "nido_calendar_create": {
+      "optional": true
+    },
+    "nido_calendar_update": {
+      "optional": true
+    },
+    "nido_calendar_delete": {
+      "optional": true
+    },
+    "nido_preferences_list": {
+      "optional": true
+    },
+    "nido_preferences_set": {
+      "optional": true
+    },
+    "nido_preferences_delete": {
+      "optional": true
+    },
+    "note4_mostrar": {
+      "optional": true
+    }
+  }
+}

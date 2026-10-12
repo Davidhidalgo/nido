@@ -1,0 +1,2 @@
+#pragma once
+namespace nido { constexpr char kOtaPublicKey[] = R"NIDOKEY(@NIDO_OTA_PUBLIC_KEY@)NIDOKEY"; }

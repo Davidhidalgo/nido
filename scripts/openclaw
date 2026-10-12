@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+NIDO_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+export XDG_CACHE_HOME="$NIDO_ROOT/.cache"
+export OPENCLAW_STATE_DIR="$NIDO_ROOT/.local/openclaw"
+export OPENCLAW_CONFIG_PATH="$NIDO_ROOT/.local/openclaw/openclaw.json"
+export OPENCLAW_HONCHO_PEERS_FILE="$NIDO_ROOT/.local/honcho/peers.json"
+exec node "$NIDO_ROOT/.runtime/openclaw/node_modules/openclaw/openclaw.mjs" "$@"

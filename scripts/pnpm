@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+NIDO_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+cd "$NIDO_ROOT"
+exec pnpm "$@"

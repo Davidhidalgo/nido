@@ -1,0 +1,75 @@
+{% comment %}Select the Google Calendar instance containing only the menu calendar.{% endcomment %}
+<div class="layout layout--col">
+  <div class="menu-header">
+    <div class="title">{{ trmnl.plugin_settings.custom_fields_values.title | default: 'Menú semanal' | escape }}</div>
+    <div class="description" id="nido-week">Conectando calendario…</div>
+  </div>
+  <div id="nido-calendar" class="menu-grid"
+       data-events="{{ menu_calendar.events | json | escape }}"
+       data-now="{{ trmnl.system.timestamp_utc | escape }}"></div>
+  <div class="description" id="nido-calendar-status">Pendiente de datos de Google Calendar</div>
+</div>
+<style>
+  .menu-header { margin-bottom: 12px; text-align: center; }
+  .menu-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); width: 100%; border: 2px solid #000; }
+  .menu-cell { box-sizing: border-box; min-width: 0; padding: 8px 6px; border-right: 1px solid #000; border-bottom: 1px solid #000; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.15; overflow-wrap: anywhere; }
+  .menu-day { min-height: 42px; font-size: 20px; font-weight: 700; text-transform: uppercase; }
+  .menu-meal { height: 110px; font-size: 17px; font-weight: 500; }
+  .menu-meal span { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden; }
+  .menu-cell:nth-child(7n) { border-right: none; }
+  .menu-cell:nth-last-child(-n + 7) { border-bottom: none; }
+  #nido-calendar-status { margin-top: 8px; text-align: center; }
+</style>
+<script>
+function nidoCalendarWeek(events, now) {
+  if (!Array.isArray(events)) throw new Error('Selecciona el calendario de menú como fuente');
+  const zone = 'Europe/Madrid';
+  const localDate = value => new Intl.DateTimeFormat('en-CA', {
+    timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit'
+  }).format(new Date(value));
+  const add = (date, count) => new Date(Date.parse(date + 'T12:00:00Z') + count * 86400000).toISOString().slice(0, 10);
+  const today = localDate(now);
+  const monday = add(today, -((new Date(today + 'T12:00:00Z').getUTCDay() + 6) % 7));
+  const labels = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
+  const days = labels.map((label, i) => ({ date: add(monday, i), label, lunch: [], dinner: [] }));
+  for (const event of events) {
+    if (event.status === 'cancelled') continue;
+    const match = /^(Comida|Cena)\s*·\s*(.+)$/iu.exec(event.summary || '');
+    if (!match) continue;
+    const start = event.start_full || event.date_time || event.start?.dateTime || event.start?.date;
+    if (typeof start !== 'string' || !/^\d{4}-\d{2}-\d{2}(?:$|T)/.test(start))
+      throw new Error('Revisar el formato de fechas del calendario');
+    // Native Calendar timestamps with offsets are converted to Madrid. Date-only or
+    // timezone-free native wall dates retain their local calendar date.
+    const date = start.length === 10 || !/(?:Z|[+-]\d{2}:\d{2})$/.test(start)
+      ? start.slice(0, 10) : localDate(start);
+    const day = days.find(item => item.date === date);
+    if (day) day[match[1].toLowerCase() === 'comida' ? 'lunch' : 'dinner'].push(match[2].trim());
+  }
+  const fmt = date => new Intl.DateTimeFormat('es-ES', {timeZone: 'UTC', day: 'numeric', month: 'long'}).format(new Date(date + 'T12:00:00Z'));
+  return { days, week: fmt(monday) + ' – ' + fmt(add(monday, 6)), conflicts: days.some(day => day.lunch.length > 1 || day.dinner.length > 1) };
+}
+(function () {
+  const grid = document.getElementById('nido-calendar');
+  const status = document.getElementById('nido-calendar-status');
+  try {
+    const timestamp = Number(grid.dataset.now);
+    const now = timestamp > 0 ? new Date(timestamp * 1000) : new Date();
+    const menu = nidoCalendarWeek(JSON.parse(grid.dataset.events || 'null'), now);
+    document.getElementById('nido-week').textContent = menu.week;
+    const cell = (text, kind) => {
+      const el = document.createElement('div'); el.className = 'menu-cell ' + kind;
+      const content = document.createElement('span'); content.textContent = text; el.appendChild(content); grid.appendChild(el);
+    };
+    menu.days.forEach(day => cell(day.label, 'menu-day'));
+    for (const slot of ['lunch', 'dinner']) menu.days.forEach(day => cell(
+      day[slot].length > 1 ? 'Revisar duplicados' : (day[slot][0] || 'Sin planificar'), 'menu-meal'
+    ));
+    status.textContent = menu.conflicts ? 'Hay eventos duplicados en Calendar' : 'Comidas · 13:00   /   Cenas · 19:00';
+  } catch (error) {
+    grid.replaceChildren();
+    document.getElementById('nido-week').textContent = 'Menú no disponible';
+    status.textContent = error instanceof SyntaxError ? 'Revisar la conexión con Calendar' : error.message;
+  }
+})();
+</script>

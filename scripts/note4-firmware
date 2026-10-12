@@ -1,0 +1,122 @@
+#!/bin/bash
+set -euo pipefail
+NIDO_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+NIDO_FIRMWARE="$NIDO_ROOT/firmware/note4"
+export IDF_PATH="$NIDO_ROOT/.runtime/esp-idf"
+export IDF_TOOLS_PATH="$NIDO_ROOT/.runtime/esp-tools"
+if [[ "${1:-}" == -- ]]; then shift; fi
+case "${1:-help}" in
+  test)
+    mkdir -p "$NIDO_ROOT/.cache/note4/firmware-preview"
+    clang -Wall -Wextra -Werror -fsanitize=address,undefined \
+      -I "$NIDO_FIRMWARE/components/nido_qr/include" \
+      -c "$NIDO_FIRMWARE/components/nido_qr/qrcodegen.c" \
+      -o "$NIDO_ROOT/.cache/note4/firmware-preview/qrcodegen.o"
+    clang -Wall -Wextra -Werror -Wno-deprecated-declarations -fsanitize=address,undefined \
+      -c "$IDF_PATH/components/json/cJSON/cJSON.c" \
+      -o "$NIDO_ROOT/.cache/note4/firmware-preview/cJSON.o"
+    clang++ -std=c++17 -Wall -Wextra -Werror -fsanitize=address,undefined \
+      -I "$IDF_PATH/components/json/cJSON" \
+      -I "$NIDO_FIRMWARE/main" -I "$NIDO_FIRMWARE/components/nido_qr/include" \
+      -I "$NIDO_FIRMWARE/components/nido_gfx/include" \
+      -I "$NIDO_FIRMWARE/components/nido_gfx/font" \
+      "$NIDO_FIRMWARE/tests/test_bringup.cc" \
+      "$NIDO_FIRMWARE/main/nido_screens.cc" \
+      "$NIDO_ROOT/.cache/note4/firmware-preview/qrcodegen.o" \
+      "$NIDO_FIRMWARE/main/nido_card.cc" \
+      "$NIDO_FIRMWARE/main/nido_home.cc" \
+      "$NIDO_FIRMWARE/main/nido_small_font.cc" \
+      "$NIDO_ROOT/.cache/note4/firmware-preview/cJSON.o" \
+      "$NIDO_FIRMWARE/components/nido_gfx/hearth_canvas.cc" \
+      -o "$NIDO_ROOT/.cache/note4/firmware-preview/test-bringup"
+    "$NIDO_ROOT/.cache/note4/firmware-preview/test-bringup" \
+      "$NIDO_ROOT/.cache/note4/firmware-preview" \
+      "$NIDO_ROOT/tests/fixtures/note4-cards.json"
+    clang++ -std=c++17 -Wall -Wextra -Werror -fsanitize=address,undefined \
+      -I "$IDF_PATH/components/json/cJSON" \
+      -I "$NIDO_FIRMWARE/main" -I "$NIDO_FIRMWARE/components/nido_qr/include" \
+      -I "$NIDO_FIRMWARE/components/nido_gfx/include" \
+      -I "$NIDO_FIRMWARE/components/nido_gfx/font" \
+      "$NIDO_FIRMWARE/tests/test_home.cc" \
+      "$NIDO_FIRMWARE/main/nido_config.cc" \
+      "$NIDO_FIRMWARE/main/nido_home.cc" \
+      "$NIDO_FIRMWARE/main/nido_screens.cc" \
+      "$NIDO_ROOT/.cache/note4/firmware-preview/qrcodegen.o" \
+      "$NIDO_FIRMWARE/main/nido_small_font.cc" \
+      "$NIDO_ROOT/.cache/note4/firmware-preview/cJSON.o" \
+      "$NIDO_FIRMWARE/components/nido_gfx/hearth_canvas.cc" \
+      -o "$NIDO_ROOT/.cache/note4/firmware-preview/test-home"
+    "$NIDO_ROOT/.cache/note4/firmware-preview/test-home" "$NIDO_ROOT/.cache/note4/firmware-preview"
+    python3 "$NIDO_FIRMWARE/tests/test_device.py"
+    # Build the SDK's own Mbed TLS for the host; mock flash, never cryptography.
+    NIDO_CRYPTO="$NIDO_ROOT/.cache/note4/crypto-native"
+    mkdir -p "$NIDO_CRYPTO"
+    node "$NIDO_ROOT/scripts/note4-ota-fixture.mjs" "$NIDO_CRYPTO"
+    NIDO_CMAKE="$IDF_TOOLS_PATH/tools/cmake/3.30.2/CMake.app/Contents/bin/cmake"
+    if [[ ! -x "$NIDO_CMAKE" ]]; then NIDO_CMAKE=$(command -v cmake); fi
+    NIDO_DEPLOYMENT=()
+    NIDO_LINK_TARGET=()
+    if [[ "$(uname -s)" == Darwin ]]; then
+      NIDO_DEPLOYMENT=(-DCMAKE_OSX_DEPLOYMENT_TARGET="$(sw_vers -productVersion)")
+      NIDO_LINK_TARGET=(-mmacosx-version-min="$(sw_vers -productVersion)")
+    fi
+    "$NIDO_CMAKE" --fresh -S "$IDF_PATH/components/mbedtls/mbedtls" -B "$NIDO_CRYPTO/build" \
+      -DCMAKE_C_COMPILER="$(command -v clang)" "${NIDO_DEPLOYMENT[@]}" \
+      -DENABLE_PROGRAMS=OFF -DENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release > "$NIDO_CRYPTO/configure.log" 2>&1
+    "$NIDO_CMAKE" --build "$NIDO_CRYPTO/build" --target mbedcrypto -j 4 > "$NIDO_CRYPTO/build.log" 2>&1
+    clang++ -std=c++17 -Wall -Wextra -Werror -fsanitize=address,undefined \
+      "${NIDO_LINK_TARGET[@]}" -I "$NIDO_FIRMWARE/tests/ota-stubs" -I "$NIDO_FIRMWARE/main" -I "$NIDO_CRYPTO" \
+      -I "$IDF_PATH/components/json/cJSON" -I "$IDF_PATH/components/mbedtls/mbedtls/include" \
+      "$NIDO_FIRMWARE/tests/test_ota.cc" "$NIDO_FIRMWARE/main/nido_ota.cc" "$NIDO_FIRMWARE/main/nido_config.cc" \
+      "$NIDO_ROOT/.cache/note4/firmware-preview/cJSON.o" "$NIDO_CRYPTO/build/library/libmbedcrypto.a" \
+      -o "$NIDO_CRYPTO/test-ota"
+    "$NIDO_CRYPTO/test-ota" "$NIDO_CRYPTO"
+    clang -std=c11 -Wall -Wextra -Wno-unused-variable -fsanitize=address,undefined \
+      "${NIDO_LINK_TARGET[@]}" -I "$NIDO_FIRMWARE/tests/srp-stubs" \
+      -I "$IDF_PATH/components/protocomm/include/crypto/srp6a" \
+      -I "$IDF_PATH/components/protocomm/src/crypto/srp6a" \
+      -I "$IDF_PATH/components/mbedtls/mbedtls/include" \
+      "$NIDO_FIRMWARE/tests/test_srp_server.c" \
+      "$IDF_PATH/components/protocomm/src/crypto/srp6a/esp_srp.c" \
+      "$IDF_PATH/components/protocomm/src/crypto/srp6a/esp_srp_mpi.c" \
+      "$NIDO_CRYPTO/build/library/libmbedcrypto.a" -o "$NIDO_CRYPTO/test-srp-server"
+    cd "$NIDO_ROOT"
+    pnpm exec vitest run tests/note4-pairing.test.ts
+
+    ;;
+  build-generic)
+    shift
+    mkdir -p "$NIDO_ROOT/.cache/note4/generic"
+    set +u
+    source "$IDF_PATH/export.sh" >/dev/null
+    set -u
+    cd "$NIDO_FIRMWARE"
+    exec idf.py -B "$NIDO_ROOT/.cache/note4/generic/build" \
+      -D SDKCONFIG="$NIDO_ROOT/.cache/note4/generic/sdkconfig" \
+      -D NIDO_OTA_PUBLIC_KEY_FILE="${NIDO_OTA_PUBLIC_KEY_FILE:-}" \
+      -D NIDO_FIRMWARE_VERSION="${NIDO_FIRMWARE_VERSION:-nido-ota-0.3}" \
+      -D IDF_TARGET=esp32s3 -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.connected.defaults" "$@" build
+    ;;
+  build|menuconfig|monitor|flash)
+    NIDO_ACTION="$1"
+    shift
+    if [[ ! -f "$IDF_PATH/export.sh" ]]; then
+      echo "Falta ESP-IDF v5.4.2 en .runtime/esp-idf. Consulta firmware/note4/README.md." >&2
+      exit 1
+    fi
+    # ESP-IDF export helpers are not compatible with nounset.
+    set +u
+    source "$IDF_PATH/export.sh" >/dev/null
+    set -u
+    if [[ "$NIDO_ACTION" == flash ]]; then
+      exec python "$NIDO_ROOT/scripts/note4-device.py" flash "$@"
+    fi
+    cd "$NIDO_FIRMWARE"
+    exec idf.py "$@" "$NIDO_ACTION"
+    ;;
+  help|--help|-h)
+    echo "NOTE4 monocromo: $0 test | build | build-generic | menuconfig | monitor [-p PUERTO]"
+    echo "Flashear: $0 flash --backup .local/note4/backups/ARCHIVO.json"
+    ;;
+  *) echo "Acción no válida: $1" >&2; exit 1 ;;
+esac

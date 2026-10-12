@@ -1,0 +1,58 @@
+{
+  "name": "nido",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-plugin.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc -p integrations/nido-family/tsconfig.json --noEmit",
+    "lint": "oxlint integrations/nido-family/src integrations/trmnl scripts tests",
+    "format:check": "oxfmt --check integrations/nido-family/src integrations/trmnl/*.mjs integrations/trmnl/README.md scripts/*.mjs tests config agents AGENTS.md README.md docs",
+    "format": "oxfmt integrations/nido-family/src integrations/trmnl/*.mjs integrations/trmnl/README.md scripts/*.mjs tests config agents AGENTS.md README.md docs",
+    "prepare:local": "node scripts/prepare-local.mjs",
+    "start": "./scripts/openclaw gateway run",
+    "check:config": "./scripts/openclaw config validate",
+    "demo:seed": "node scripts/seed-demo.mjs",
+    "check:local": "node scripts/check-local.mjs",
+    "test:gateway": "node scripts/smoke-gateway.mjs",
+    "google:connect": "node scripts/google-auth.mjs",
+    "telegram:setup": "node scripts/telegram-setup.mjs",
+    "note4:chat": "node scripts/note4.mjs",
+    "note4:dashboard": "node scripts/note4-dashboard.mjs",
+    "note4:firmware": "./scripts/note4-firmware",
+    "note4:device": "./scripts/note4-device",
+    "note4:setup": "node scripts/note4-setup.mjs",
+    "note4:bridge": "node scripts/note4-bridge.mjs",
+    "test:note4-firmware": "./scripts/note4-firmware test",
+    "dashboard": "./scripts/openclaw dashboard",
+    "trmnl:preview": "node scripts/trmnl.mjs",
+    "trmnl:sync": "node scripts/trmnl.mjs --publish",
+    "trmnl:watch": "node scripts/trmnl.mjs --publish --watch",
+    "setup": "node scripts/setup.mjs",
+    "runtime:install": "node scripts/install-local.mjs",
+    "release:check": "node scripts/release-check.mjs",
+    "plugin:pack": "node scripts/pack-plugin.mjs",
+    "test:gateway:isolated": "node scripts/test-gateway-isolated.mjs",
+    "openclaw:settings": "node scripts/openclaw-settings.mjs",
+    "note4:ota": "node scripts/note4-ota.mjs",
+    "test:plugin:isolated": "node scripts/test-plugin-install-isolated.mjs",
+    "auth:serve": "node scripts/serve-nido-oauth.mjs",
+    "test:oauth:browser": "node scripts/test-oauth-browser-isolated.mjs"
+  },
+  "dependencies": {
+    "typebox": "1.1.38"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "esbuild": "0.28.1",
+    "openclaw": "link:.runtime/openclaw/node_modules/openclaw",
+    "oxfmt": "0.68.0",
+    "oxlint": "1.83.0",
+    "typescript": "6.0.3",
+    "vitest": "5.0.1"
+  },
+  "engines": {
+    "node": ">=24.16.0 <25"
+  },
+  "packageManager": "pnpm@9.0.5"
+}

@@ -1,0 +1,8 @@
+# Name, Type, SubType, Offset, Size, Flags
+nvs, data, nvs, 0x9000, 0x6000,
+phy_init, data, phy, 0xf000, 0x1000,
+# Preserve the old factory app area during migration; new applications boot via otadata.
+otadata, data, ota, 0x310000, 0x2000,
+nido_config, data, nvs, 0x312000, 0x10000,
+ota_0, app, ota_0, 0x330000, 0x400000,
+ota_1, app, ota_1, 0x730000, 0x400000,
