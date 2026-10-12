@@ -81,9 +81,20 @@ process.once("SIGINT", () => void stop());
 try {
   await mkdir(original.agents.entries.existing.workspace);
   await writeFile(configPath, JSON.stringify(original), { mode: 0o600 });
-  const archive = join(root, "release/openclaw-plugin-nido-family-0.1.0.tgz");
+  const pkg = JSON.parse(
+    await readFile(join(root, "integrations/nido-family/package.json"), "utf8"),
+  );
+  const archive = join(root, "release", `${pkg.name}-${pkg.version}.tgz`);
   console.log("Instalando el paquete en un OpenClaw temporal con un agente existente…");
   console.log(run(["plugins", "install", archive, "--force", "--accept-capabilities"]));
+  const installedRoot = join(base, "extensions/nido-family");
+  const installedPackage = JSON.parse(await readFile(join(installedRoot, "package.json"), "utf8"));
+  const installedManifest = JSON.parse(
+    await readFile(join(installedRoot, "openclaw.plugin.json"), "utf8"),
+  );
+  assert.equal(installedPackage.name, pkg.name);
+  assert.equal(installedPackage.version, pkg.version);
+  assert.equal(installedManifest.version, pkg.version);
   run(["config", "validate"]);
   child = spawn(process.execPath, [cli, "gateway", "run"], {
     cwd: base,
@@ -205,6 +216,53 @@ try {
   assert.equal(blocked.body.result?.details?.error, "FORBIDDEN");
   const created = await invoke("menu", "nido_calendar_create", { calendar: "menu", event });
   assert.ok(created.body.result?.details?.result?.id, JSON.stringify(created.body));
+  const earlierEvent = {
+    summary: "Arroz de prueba",
+    start: { dateTime: "2099-01-01T12:17:00+01:00", timeZone: "Europe/Madrid" },
+    end: { dateTime: "2099-01-01T13:17:00+01:00", timeZone: "Europe/Madrid" },
+  };
+  const earlier = await invoke("menu", "nido_calendar_create", {
+    calendar: "menu",
+    event: earlierEvent,
+  });
+  const firstMeal = earlier.body.result?.details?.result;
+  assert.ok(firstMeal?.id, JSON.stringify(earlier.body));
+  const third = await invoke("menu", "nido_calendar_create", {
+    calendar: "menu",
+    event: {
+      ...earlierEvent,
+      start: { ...earlierEvent.start, dateTime: "2099-01-01T12:30:00+01:00" },
+    },
+  });
+  assert.equal(third.body.result?.details?.error, "OCCUPIED");
+  const edited = await invoke("menu", "nido_calendar_update", {
+    calendar: "menu",
+    id: firstMeal.id,
+    etag: firstMeal.etag,
+    patch: { summary: "Lentejas de prueba" },
+  });
+  assert.deepEqual(edited.body.result?.details?.result?.start, earlierEvent.start);
+  const listed = await invoke("menu", "nido_calendar_list", {
+    calendar: "menu",
+    from: "2099-01-01T00:00:00+01:00",
+    to: "2099-01-02T00:00:00+01:00",
+  });
+  const meals = listed.body.result?.details?.result;
+  assert.equal(meals?.length, 2, JSON.stringify(listed.body));
+  const { note4Home } = await import(pathToFileURL(join(installedRoot, "dist/note4-home.js")));
+  const installedConfig = saved.plugins.entries["nido-family"].config;
+  const home = await note4Home(
+    { list: async (id) => (id === installedConfig.menuCalendarId ? meals : []) },
+    { ...installedConfig, mealTimes: { lunch: "14:30", dinner: "21:30", durationMinutes: 60 } },
+    "2099-01-01",
+    new Date("2099-01-01T12:00:00Z"),
+  );
+  const day = home.days.find((value) => value.date === "2099-01-01");
+  assert.equal(day.lunch, "Lentejas de prueba");
+  assert.equal(day.dinner, "Sopa de prueba");
+  console.log(
+    `Plugin ${pkg.version}: installed metadata, chronological menu, old-time edits and full-day protection verified.`,
+  );
   const sessionRead = await invoke("nido", "sessions_history", {
     sessionKey: "agent:existing:main",
   });

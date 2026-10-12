@@ -4,10 +4,12 @@ Plugin de menú, agenda y preferencias familiares. Incluye un asistente nativo q
 
 ## Instalar y configurar
 
-En el servidor de tu OpenClaw, instala el paquete que hayas revisado:
+<!-- Package filename matching integrations/nido-family/package.json name and version -->
+
+On your OpenClaw server, install the package you have reviewed:
 
 ```sh
-openclaw plugins install ./openclaw-plugin-nido-family-0.1.0.tgz
+openclaw plugins install ./openclaw-plugin-nido-family-0.1.2.tgz
 ```
 
 Confirma la confianza y las capacidades cuando el CLI lo solicite. Para una instalación no interactiva revisada puedes añadir `--force --accept-capabilities`; `--force` también puede reemplazar una versión existente. El paquete no se presupone publicado en npm ni ClawHub.
@@ -60,6 +62,8 @@ pnpm install --frozen-lockfile
 pnpm run plugin:pack
 ```
 
-El resultado es `release/openclaw-plugin-nido-family-0.1.0.tgz`. `plugin:pack` ejecuta la revisión de privacidad y compila. Incluye únicamente código compilado, la UI activa, plantillas genéricas, manifiesto y esta guía. No publica nada. La compilación usa un estado temporal sin consultar `.local` ni modificar el runtime.
+<!-- Package output and isolated verification from scripts/pack-plugin.mjs, scripts/test-plugin-install-isolated.mjs and integrations/nido-family/package.json -->
 
-Para comprobar el paquete en un host ficticio: `pnpm run test:plugin:isolated`. No requiere acceso al modelo ni a Google.
+The output is `release/openclaw-plugin-nido-family-0.1.2.tgz`. `plugin:pack` runs the privacy check and build. The archive contains only compiled code, the active UI, generic templates, the manifest, and this guide. It does not publish anything. The build uses temporary state without reading `.local` or modifying the runtime.
+
+Run `pnpm run test:plugin:isolated` to install the archive matching the source package version in a temporary host. The check verifies installed package/manifest versions, setup, preservation of the existing host, runtime permissions, and chronological menu behavior using the installed code. It requires localhost access and makes no model or Google calls. It stops the temporary Gateway and removes its test state when finished.

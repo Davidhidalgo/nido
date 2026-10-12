@@ -56,7 +56,7 @@ La variante `cancel?continue=1` conserva la conversación para una aclaración. 
 
 <!-- Empaquetado definido en ../../scripts/pack-plugin.mjs -->
 
-`pnpm run plugin:pack` desde la raíz compila y crea un archivo instalable de OpenClaw con código, manifiesto e instrucciones genéricas. Los datos privados y el checkout completo no se empaquetan. Sigue [la guía de instalación del plugin](../../docs/plugin-install.md); después de instalarlo, su página Nido crea los agentes y guía la conexión de la cuenta.
+`pnpm run plugin:pack` from the repository root builds an installable OpenClaw archive containing code, the manifest, and generic instructions. Private data and the full checkout are excluded. `pnpm run test:plugin:isolated` selects the archive matching `package.json`, checks its installed version, and verifies setup and chronological menu behavior in a temporary host. Follow [the plugin installation guide](../../docs/plugin-install.md); after installation, the Nido page creates its agents and guides account connection.
 
 ## Mantenimiento NOTE4
 

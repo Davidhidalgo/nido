@@ -6,12 +6,14 @@ Nido se instala en un OpenClaw que ya funciona. El asistente crea Nido, Menú y 
 
 Necesitas OpenClaw **2026.9.8 o posterior** y su modelo configurado. Esta revisión está probada con 2026.9.8; las APIs de plugins del host son experimentales. No necesitas otro Gateway ni instalar pnpm para usar el paquete.
 
-Consigue `openclaw-plugin-nido-family-0.1.0.tgz` de una distribución de Nido que hayas revisado. El proyecto todavía no presupone una publicación en npm, ClawHub o GitHub Releases. Si partes del código, sigue el apartado de empaquetado de [la guía del plugin](plugin-install.md).
+<!-- Package filename matching integrations/nido-family/package.json name and version -->
+
+Obtain `openclaw-plugin-nido-family-0.1.2.tgz` from a Nido distribution you have reviewed. This version is prepared locally; these instructions do not imply that it has been published to npm, ClawHub, or GitHub Releases. To build from source, follow the packaging section of [the plugin guide](plugin-install.md).
 
 En el equipo o servidor donde corre tu OpenClaw:
 
 ```sh
-openclaw plugins install ./openclaw-plugin-nido-family-0.1.0.tgz
+openclaw plugins install ./openclaw-plugin-nido-family-0.1.2.tgz
 ```
 
 El CLI pide confiar en el paquete y aceptar sus capacidades. En un terminal no interactivo, una vez revisadas, añade `--force --accept-capabilities`. `--force` también permite reemplazar una instalación existente: comprueba la versión antes de usarlo. Los datos familiares permanecen sin configurar hasta completar el asistente.

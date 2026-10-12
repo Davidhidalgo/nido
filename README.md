@@ -14,10 +14,12 @@ La versión probada del host es OpenClaw 2026.9.8. La interfaz requiere activar 
 
 <!-- Instalación y asistente de integrations/nido-family/src/setup-admin.ts, integrations/nido-family/src/control-ui.ts y docs/getting-started.md -->
 
-Con el paquete revisado en el servidor de OpenClaw:
+<!-- Package filename matching integrations/nido-family/package.json name and version -->
+
+With the reviewed package on the OpenClaw server:
 
 ```sh
-openclaw plugins install ./openclaw-plugin-nido-family-0.1.0.tgz
+openclaw plugins install ./openclaw-plugin-nido-family-0.1.2.tgz
 ```
 
 Abre el dashboard como administrador, activa **Settings → Labs → Custom plugin UI**, entra en **Nido** y sigue el asistente. Para Google, autoriza la app de Nido; no necesitas crear un proyecto de Google Cloud ni cargar un JSON. Revisa antes de guardar; puedes empezar con calendarios ficticios. [Guía de instalación](docs/getting-started.md).

@@ -38,7 +38,7 @@ Closure: observable acceptance criterion and delivery scope
 3. Update the resume point with active work, last result, remaining work, blockers, and a concrete next action. Identify significant uncommitted work and distinguish it from committed, published, deployed, and physically verified results. Do not imply a commit or release that did not happen.
 4. Check relative file links and any heading anchors in changed documentation. Update README sections governed by symbolic comments and the relevant plan backlinks when adding/moving documents.
 5. End with links to the register and a short resume prompt. Registering a next action does not itself authorize publication, deployment, real-installation inspection, or hardware changes. Follow the current request and existing repository rules for those actions.
-6. When local commits are authorized, commit completed, verified units of work before handing off. Keep unrelated documentation and functional changes in separate commits, report their hashes, and state any work left uncommitted. Pushes, releases, and deployments require their own applicable authorization.
+6. When local commits are authorized, commit completed, verified units of work before handing off. Check author and committer metadata first and use the repository's public `noreply` email so a personal address does not enter publication history. Keep unrelated documentation and functional changes in separate commits, report their hashes, and state any work left uncommitted. Pushes, releases, and deployments require their own applicable authorization.
 
 ## Reuse existing records
 

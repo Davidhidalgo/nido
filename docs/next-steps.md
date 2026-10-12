@@ -4,12 +4,12 @@ Last reconciled: **2026-10-12**. This is the single register of current prioriti
 
 ## Resume point
 
-- **Current scope:** NIDO-001 local implementation and review are complete. The user requested local commits; publication, deployment, and hardware changes remain separate.
-- **Last repository result:** continuity is committed in `933b370`. The functional commit containing this entry, `feat: assign menu meals by chronological order`, preserves and completes the existing menu changes, aligns documentation, and adds regression coverage. The earlier `de28e2f` remains the recorded firmware availability/meal-settings result. This session has not queried GitHub or inspected a running installation.
-- **Delivery state:** chronological assignment is validated locally and unreleased. Plugin/firmware version numbers have not been advanced. The functional commit includes the regenerated UI manifest and all previously uncommitted menu changes; there is no deferred code edit from NIDO-001.
-- **Next concrete action:** if delivery is requested, establish the target and version, run `release:check`, package the plugin, and verify the package in an isolated host before the separately authorized publication or installation. If hardware validation is requested instead, resume NIDO-002 by establishing the installed version first.
+- **Current scope:** NIDO-016 package preparation and isolated installation verification are complete, following NIDO-001. The user requested local commits; publication, live installation, and hardware changes remain separate.
+- **Last repository result:** continuity is committed in `933b370` and chronological assignment in `720de32`. Their previously reported hashes changed when private author/committer emails were corrected to the repository's existing public noreply identity; no published commits were changed. The commit containing this update, `build: prepare and verify plugin 0.1.2`, advances plugin metadata, fixes current-version package selection, and records installation evidence. The earlier `de28e2f` remains the recorded firmware availability/meal-settings result.
+- **Delivery state:** `release/openclaw-plugin-nido-family-0.1.2.tgz` is prepared, reviewed, and verified in a temporary OpenClaw host. It is an ignored local build artifact, not a published release. Firmware versions are unchanged. No live installation or GitHub state was inspected.
+- **Next concrete action:** when delivery is requested, choose publication, installation, or both and establish the target. Recheck remote version/tag availability before publication and preserve the reviewed archive hash in the verification entry. For live installation, inspect only the authorized target and plan its update/reload and behavioral checks. NIDO-002 physical verification remains separate.
 - **Outstanding evidence:** current device version and physical appearance of 0.4.8 are unknown here. Historical tests and an earlier successful OTA do not establish either.
-- **Priority:** no new implementation task has been selected after closing NIDO-001's local scope. NIDO-002 is a separate hardware verification follow-up when requested and available. All other open entries are unranked; they are not an automatic implementation queue.
+- **Priority:** no new implementation task has been selected after completing NIDO-016. NIDO-002 is a separate hardware verification follow-up when requested and available. All other open entries are unranked; they are not an automatic implementation queue.
 
 ## Reading states and origins
 
@@ -30,7 +30,7 @@ States: `implemented / unreleased`, `needs verification`, `proposed`, `parked`, 
 ### NIDO-003 — Reconcile historical documentation and English migration
 
 - **Origin / state:** English documentation is a user decision; a broad cleanup is an assistant proposal.
-- **Reason:** old plans and pending statements can mislead new sessions. Examples: the MVP plan predates public GitHub and NOTE4, the maintenance guide still mentions waiting for the first repository/release, and the README installation example names plugin 0.1.0.
+- **Reason:** old plans and pending statements can mislead new sessions. Examples: the MVP plan predates public GitHub and NOTE4, and the maintenance guide still mentions waiting for the first repository/release. Package filename examples were aligned with 0.1.2 during NIDO-016; the broader cleanup remains unapproved.
 - **Next action:** select a bounded documentation pass, check each statement against code and dated evidence, and translate the directly revised sections into English. Preserve historical test results as historical.
 - **Closure:** selected current guides are consistent, with obsolete statements dated or replaced and remaining cleanup explicitly scoped. Do not claim the entire documentation set has been translated by this continuity change.
 
@@ -76,6 +76,14 @@ Dates below are **recording dates**, not invented dates for undated chat message
 ## Completed results and evidence
 
 These entries close specific scopes, not all associated follow-ups. Implementation, software checks, publication, and physical observation are different claims.
+
+### NIDO-016 — Prepare and verify plugin 0.1.2
+
+- **Origin / state:** user request; done for local packaging and isolated installation (2026-10-12), unreleased.
+- **Reason:** turn NIDO-001 into a reviewed installable package before any live delivery.
+- **Implementation:** package and generated manifest versions are 0.1.2. [The installation fixture](../scripts/test-plugin-install-isolated.mjs) now selects the archive from the source package name/version instead of hard-coding 0.1.0, asserts installed metadata, and exercises chronological assignment from the installed package. Installation examples now use 0.1.2. The [session workflow](session-workflow.md) checks public commit identity before committing.
+- **Evidence:** `pnpm run plugin:pack` passed the release scan and compilation; the archive contains 65 regular UTF-8 files with the expected manifest/UI and no detected private-path/key/token patterns. `pnpm run test:plugin:isolated` passed setup, host preservation, permissions, old-time edits, third-meal rejection, and chronological NOTE4 projection with changed configured times. Lint, formatting, links, and diff checks passed. [Verification](verification.md#2026-10-12--plugin-012-package-preparation-nido-016) records the artifact SHA-256 and scope.
+- **Closure / next action:** package preparation and temporary-host verification are complete. Publishing, pushing, and installing into a real host have not been performed; continue from the resume point if requested.
 
 ### NIDO-001 — Chronological menu assignment
 
