@@ -307,3 +307,16 @@ The authorized host uses an explicit source-linked plugin path. All compiled run
 - Verification made no calendar writes, changed no authentication or meal settings, and ran no model conversation. The bridge performed its normal authorized calendar reads. No hardware operation or firmware update was performed.
 
 Publication and live backend activation are complete. These checks do not establish the physically displayed menu, installed firmware version, or the success of a spoken interaction; those remain separate observations under NIDO-002. The current resume point is in [next steps](next-steps.md).
+
+## 2026-10-13 — Local HTTPS control URL (NIDO-004)
+
+The user authorized replacing the local redirect with transparent access. A direct Portless alias reproduced HTTP 403 `proxy_attribution_required`: the installed runtime rejects a resolved loopback client even when its immediate proxy is trusted. The temporary trust setting was removed; only the exact browser origin remains added to the existing Gateway configuration.
+
+The maintained [adapter](../scripts/local-control-proxy.mjs) validates local socket/forwarding provenance and browser origin, removes proxy identity claims, and forwards HTTP/WebSocket to the fixed loopback Gateway. The existing service now imports this adapter; its persistent alias and loopback-only TLS frontend were verified. Private rollback copies were retained outside the checkout. Authentication and plugin settings were compared with the pre-change backup and are unchanged. Gateway and NOTE4 services were not restarted.
+
+- Three fictitious proxy tests passed, covering credential/cookie/body/path preservation, HTTP 401 without credentials, foreign/remote ingress rejection, and bidirectional upgrade traffic. The first sandbox run could not bind loopback (EPERM); the authorized network run passed after fixing fixture socket cleanup.
+- Live HTTPS returned HTTP 200 with no Location header using normal certificate validation. Safari loaded the Control UI and kept the named HTTPS origin, showing the expected Gateway-secret sign-in screen. The in-app browser blocked this local destination; Safari was used for rendering evidence.
+- A separate read-only WebSocket connection through the HTTPS origin authenticated successfully with the existing token and the installed protocol version 4. An initial protocol-3 attempt was rejected as a version mismatch; no authentication bypass was enabled.
+- No model conversation or calendar mutation was performed. Browser storage is per origin, so an existing direct-localhost session does not imply a signed-in session at the new origin.
+
+See [the deployment guide](local-control-url.md) for generic setup, trust boundaries, and recovery, and [next steps](next-steps.md) for the current handoff.

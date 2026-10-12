@@ -46,6 +46,7 @@ El firmware conectado genérico admite configuración por punto de acceso propio
 
 - [Next steps and session handoff](docs/next-steps.md).
 - [Session workflow](docs/session-workflow.md).
+- [Local HTTPS access to OpenClaw](docs/local-control-url.md).
 - [Arquitectura](docs/architecture.md).
 - [Memoria conversacional con Honcho](docs/memory.md).
 - [Guía para desarrollar y diagnosticar](docs/development.md).

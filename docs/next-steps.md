@@ -4,12 +4,12 @@ Last reconciled: **2026-10-13**. This is the single register of current prioriti
 
 ## Resume point
 
-- **Current scope:** NIDO-017 publication and live activation are complete. The user explicitly authorized publishing and updating the existing installation after NIDO-016. Physical firmware operations were not part of this request.
-- **Last repository result:** commits `933b370`, `720de32`, and `4719a5c` were pushed normally to `main`; no published history was rewritten. Tag `nido-plugin-0.1.2` targets `4719a5ce1604855184a2cac34c716f396608da60`. The follow-up documentation commit records delivery and updates download links.
-- **Delivery state:** [plugin 0.1.2](https://github.com/Davidhidalgo/nido/releases/tag/nido-plugin-0.1.2) is public with the exact reviewed archive and checksum. It was activated in the existing source-linked installation after comparing all runtime files with that archive. Gateway plugin reload succeeded without a Gateway restart; the NOTE4 bridge was restarted and completed a fresh calendar projection. Configuration remained byte-for-byte identical. `nido-ota-0.4.8` remains GitHub's latest release so firmware discovery continues to work.
-- **Next concrete action:** if the user wants to verify the visible result, observe the NOTE4 menu on its next refresh and resume NIDO-002 by establishing the installed firmware version. Do not assume a backend refresh proves physical appearance. No further publication or installation is pending for plugin 0.1.2.
-- **Outstanding evidence:** current device version and physical appearance of 0.4.8 are unknown here. Historical tests and an earlier successful OTA do not establish either.
-- **Priority:** no new implementation task has been selected after completing NIDO-017. NIDO-002 is a separate physical verification follow-up when requested and available. All other open entries are unranked; they are not an automatic implementation queue.
+- **Current scope:** NIDO-004 local HTTPS access is implemented and activated after the user resumed the request. The named URL now serves the Control UI directly and supports an authenticated WebSocket connection.
+- **Last repository result:** `911de6c` records the completed plugin 0.1.2 release and activation. The follow-up proxy commit adds a reusable local adapter, fictitious tests, and deployment guidance; it does not change the plugin package or firmware.
+- **Delivery state:** the existing local redirect service now loads the adapter, and the persistent Portless alias targets it. Only the exact HTTPS browser origin was added to Gateway configuration; authentication and plugin settings are unchanged. No Gateway or NOTE4 restart was needed.
+- **Next concrete action:** open the named HTTPS URL and sign in with the existing Gateway secret if this browser origin has no saved session. Safari rendering and a separate authenticated WebSocket handshake passed; a model conversation was not run.
+- **Outstanding evidence:** NIDO-002 physical device appearance/version remains separate and unverified.
+- **Priority:** NIDO-004 is complete for local access. No new implementation task is selected; other entries are not an automatic implementation queue.
 
 ## Reading states and origins
 
@@ -33,14 +33,6 @@ States: `implemented / unreleased`, `needs verification`, `proposed`, `parked`, 
 - **Reason:** old plans and pending statements can mislead new sessions. Examples: the MVP plan predates public GitHub and NOTE4, and the maintenance guide still mentions waiting for the first repository/release. Package filename examples were aligned with 0.1.2 during NIDO-016; the broader cleanup remains unapproved.
 - **Next action:** select a bounded documentation pass, check each statement against code and dated evidence, and translate the directly revised sections into English. Preserve historical test results as historical.
 - **Closure:** selected current guides are consistent, with obsolete statements dated or replaced and remaining cleanup explicitly scoped. Do not claim the entire documentation set has been translated by this continuity change.
-
-### NIDO-004 — Recognizable local URL for OpenClaw
-
-- **Origin / state:** user request; historical review of a machine-level integration.
-- **Reason:** the conversation records Portless setup, but the delivered workaround redirected to the dashboard rather than keeping a transparent proxy URL. Proxy compatibility remained unresolved.
-- **Evidence / limit:** conversation report only; no maintained repository implementation or current service inspection established here. Do not treat the report as proof of today's host state.
-- **Next action:** if the user resumes this request, inspect the authorized host setup and reproduce the proxy failure without weakening authentication.
-- **Closure:** verify the agreed URL behavior, or explicitly accept and document the redirect limitation. Keep host secrets and service state outside the repository.
 
 ## Ideas and parked work
 
@@ -76,6 +68,14 @@ Dates below are **recording dates**, not invented dates for undated chat message
 ## Completed results and evidence
 
 These entries close specific scopes, not all associated follow-ups. Implementation, software checks, publication, and physical observation are different claims.
+
+### NIDO-004 — Recognizable local URL for OpenClaw
+
+- **Origin / state:** user request, resumed and completed 2026-10-13.
+- **Reason:** the former local entry point returned a redirect instead of preserving its HTTPS origin.
+- **Implementation:** [local adapter and deployment guide](local-control-url.md), with [fictitious tests](../tests/local-control-proxy.test.ts). The adapter validates local ingress before removing proxy identity headers; Gateway credentials remain required. It is expressly unsuitable for remote ingress.
+- **Evidence:** direct Portless forwarding reproduced the Gateway's loopback attribution rejection. The adapter then served HTTP 200 without a redirect; Safari loaded the Control UI at the named HTTPS origin and required the existing token. An authenticated protocol-v4 WebSocket handshake passed separately. Auth and plugin configuration remained unchanged; private rollback copies were retained outside the repo.
+- **Closure / next action:** local access is active. Sign in once at the new browser origin if needed; no model conversation, calendar write, or hardware operation was used for verification. See [verification](verification.md#2026-10-13--local-https-control-url-nido-004).
 
 ### NIDO-017 — Publish and activate plugin 0.1.2
 
