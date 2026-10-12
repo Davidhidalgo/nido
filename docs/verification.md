@@ -247,3 +247,9 @@ No se ha desplegado el servicio público ni creado el cliente OAuth Web. No se h
 Implementado el cliente HTTPS en firmware, con consulta al entrar en mantenimiento y elección física antes de instalar. Las pruebas nativas con ASan/UBSan, HTTP simulado y RSA real comprueban comparación de versiones, metadatos y assets, TLS configurado, redirecciones acotadas, lectura por bloques, descargas incompletas y paquetes corruptos. Renderizada la modal ficticia a 400 × 300 y compilada la aplicación genérica con ESP-IDF.
 
 La `nido-ota-0.4.2` se cargó por USB con respaldo validado; escritura y verificación de hashes completadas, reinicio por watchdog solicitado. Esto no confirma todavía el arranque físico ni la descarga e instalación de una release en el dispositivo. Se prepara `nido-ota-0.4.3` como destino de la prueba OTA, con el mismo código y versión superior.
+
+## Corrección de descarga y símbolos de botones (2026-10-12)
+
+Las redirecciones públicas de assets de GitHub pueden superar 512 bytes. El búfer predeterminado de petición de ESP-IDF no admite esa línea, aunque el receptor tenga espacio. Se fija `buffer_size_tx=4096` y se reproduce una redirección ficticia larga con el límite del SDK en el transporte simulado. La prueba exige completar descarga e instalación firmada. El firmware 0.4.4 con esta corrección y versión mínima en mantenimiento se escribió y verificó por USB; reinicio solicitado, OTA física aún pendiente.
+
+La 0.4.5 añade símbolos de los botones laterales a las respuestas binarias, tanto en modal como en la vista completa. La pareja vertical mide 6 × 22 píxeles, con esquina de un píxel y borde grueso/trama en el botón indicado. El renderer compartido incluye el frontal circular. Las muestras ficticias cubren preguntas, OTA, etiquetas largas y combinación de botones. No se cargará por USB como parte de esta comprobación: se prepara una release firmada para probar el salto desde 0.4.4.

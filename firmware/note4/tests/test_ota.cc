@@ -38,10 +38,10 @@ esp_http_client_handle_t esp_http_client_init(const esp_http_client_config_t* c)
 int esp_http_client_close(esp_http_client_handle_t){return 0;}
 int esp_http_client_cleanup(esp_http_client_handle_t c){delete c;return 0;}
 int esp_http_client_set_header(esp_http_client_handle_t,const char* key,const char*){assert(std::strcmp(key,"Authorization"));return 0;}
-int esp_http_client_open(esp_http_client_handle_t,int){++http_opened;return 0;}
+int esp_http_client_open(esp_http_client_handle_t c,int){++http_opened;const auto path=c->url.find('/',8);const size_t line=4+c->url.size()-path+11;return line>=static_cast<size_t>(c->config.buffer_size_tx?c->config.buffer_size_tx:512)?ESP_FAIL:ESP_OK;}
 int esp_http_client_set_timeout_ms(esp_http_client_handle_t,int){return 0;}
 int64_t esp_http_client_fetch_headers(esp_http_client_handle_t c){if(!http_redirect.empty()){esp_http_client_event_t e{HTTP_EVENT_ON_HEADER,"Location",http_redirect.c_str(),c->config.user_data};c->config.event_handler(&e);}return http_chunked?0:c->body.size();}
-int esp_http_client_get_status_code(esp_http_client_handle_t){return http_status;}
+int esp_http_client_get_status_code(esp_http_client_handle_t c){return c->url==http_redirect && c->url.find("release-assets.githubusercontent.com")!=std::string::npos?200:http_status;}
 int esp_http_client_read(esp_http_client_handle_t c,char* out,int capacity){size_t n=std::min({size_t(capacity),size_t(7),c->body.size()-c->offset});std::memcpy(out,c->body.data()+c->offset,n);c->offset+=n;return n;}
 bool esp_http_client_is_complete_data_received(esp_http_client_handle_t c){return !http_incomplete&&c->offset==c->body.size();}
 int main(int argc,char** argv){
@@ -63,6 +63,8 @@ int main(int argc,char** argv){
    assert(!nido::GithubInstall(wanted));assert(!boot_changed);http_incomplete=false;
  }
  http_body=bundle;http_status=302;http_redirect="https://evil.example/private";http_opened=0;assert(!nido::GithubInstall(selected));assert(http_opened==1);
+ http_redirect="https://release-assets.githubusercontent.com/example/firmware?signature="+std::string(900,'a');
+ http_opened=0;assert(nido::GithubInstall(selected));assert(http_opened==2);assert(boot_changed);
  http_redirect=selected.url;http_opened=0;assert(!nido::GithubInstall(selected));assert(http_opened==4);http_redirect.clear();http_status=200;
  http_body=R"({"tag_name":"nido-ota-0.4.3","draft":false,"prerelease":false,"assets":[{"name":"firmware.nidoota","state":"uploaded","size":2048,"browser_download_url":"https://github.com/Davidhidalgo/nido/releases/download/nido-ota-0.4.3/firmware.nidoota"}]})";
  nido::GithubRelease latest;assert(nido::GithubLatest("nido-ota-0.4.2",latest,clock_us+1000000));assert(latest.version=="nido-ota-0.4.3");assert(!nido::GithubLatest("nido-ota-0.4.2",latest,clock_us-1));

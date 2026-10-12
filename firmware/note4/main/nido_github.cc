@@ -21,7 +21,7 @@ struct Download {
         for(int hop=0;hop<4&&esp_timer_get_time()<deadline;++hop){
             if(!GithubUrl(url))return false;
             Close();redirect.clear();
-            esp_http_client_config_t config{};config.url=url.c_str();config.crt_bundle_attach=esp_crt_bundle_attach;config.timeout_ms=Timeout();config.disable_auto_redirect=true;config.event_handler=Event;config.user_data=this;config.buffer_size=4096;
+            esp_http_client_config_t config{};config.url=url.c_str();config.crt_bundle_attach=esp_crt_bundle_attach;config.timeout_ms=Timeout();config.disable_auto_redirect=true;config.event_handler=Event;config.user_data=this;config.buffer_size=4096;config.buffer_size_tx=4096; // GitHub asset redirects carry long signed query strings.
             client=esp_http_client_init(&config);if(!client)return false;
             esp_http_client_set_header(client,"User-Agent","Nido-Note4-OTA");esp_http_client_set_header(client,"Accept","application/vnd.github+json");
             if(esp_http_client_open(client,0)!=ESP_OK)return false;

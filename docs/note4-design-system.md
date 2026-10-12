@@ -51,6 +51,25 @@ Estas reglas recogen las decisiones del usuario y deben guiar las pantallas, los
 - Mostrar la pantalla de escucha después del umbral para evitar un cambio de pantalla durante un clic breve, sin retrasar la captura.
 - Resolver en la implementación que el botón superior (GPIO39) no despierta desde reposo profundo; no dar por verificada la navegación física a partir de una maqueta.
 
+## Símbolos de los botones físicos
+
+Regla acordada para la próxima versión: identificar las acciones por la forma y posición de sus botones. Los símbolos acompañan al texto de la acción en preguntas, elecciones, cierre de modales, configuración, vinculación, OTA y cualquier otra interacción que indique una pulsación. Mostrar solo acciones disponibles en ese estado; no añadir ayudas permanentes al resumen diario ni alterar los gestos existentes.
+
+- **Lateral superior:** dos rectángulos verticales iguales, estrechos y altos, con esquinas mínimamente redondeadas, uno encima del otro. Resaltar el de arriba con contorno negro grueso y relleno tramado; el inferior conserva contorno fino e interior blanco.
+- **Lateral inferior:** la misma pareja, resaltando únicamente el rectángulo inferior. Mantener siempre ambos para que su posición sea inequívoca.
+- **Frontal:** un círculo con contorno negro grueso y relleno tramado, siguiendo el mismo tratamiento del lateral indicado.
+- El énfasis señala **qué botón pulsar para esa acción**, no una opción seleccionada ni un estado de pulsación ya detectado. En una pregunta binaria cada respuesta tiene su propio símbolo, superior e inferior respectivamente.
+- Usar tinta negra y blanco, con trama regular de 1 bit. El contorno grueso debe seguir siendo reconocible sin depender del sombreado; no usar grises reales, color, emoji ni caracteres Unicode como sustitutos del dibujo.
+- Colocar el símbolo a la izquierda de la etiqueta, centrado verticalmente, con separación suficiente para que no se confunda con una letra. Reservar su anchura antes de ajustar o recortar el texto. Sustituir los prefijos «1 / 2» en las respuestas binarias por estos símbolos, conservando las etiquetas y su orden.
+- Una pulsación breve se representa con el símbolo y la acción («Cerrar», «Actualizar», «Configurar»). Una pulsación mantenida añade «mantener» y, si procede, la duración. Una combinación simultánea une los símbolos con «+» y una sola indicación de duración: frontal + lateral inferior, «mantener 5 s». Si exige liberación, mostrar después «suelta ambos» según el flujo existente.
+- No ofrecer «Cerrar» con el círculo si el frontal realiza otra acción en ese estado. La acción escrita debe corresponder siempre al comportamiento real; los símbolos no cambian permisos, confirmaciones ni el funcionamiento de los botones.
+
+Parámetros visuales aprobados por el usuario (2026-10-12) a 400 × 300: pareja lateral de 6 × 22 píxeles (rectángulos verticales de 6 × 10, separación vertical de 2 y radio de esquina de 1), círculo de 20 × 20, contorno activo de 2 píxeles e inactivo de 1, trama negra del 25 % y separación al texto de al menos 8 píxeles. Mantener la misma escala entre las dos variantes laterales y márgenes libres alrededor; centrar la pareja completa respecto a la etiqueta. La pareja cabe centrada en las respuestas actuales de 28 píxeles de alto con 3 píxeles libres arriba y abajo. Estas medidas son ajustables tras revisar su legibilidad en la pantalla física.
+
+Referencia de forma y ubicación: [galería oficial del NOTE4 Devkit](https://zectrix.com/en/note4-developer-kit.html). La corrección acordada conserva cada rectángulo en vertical además de apilar ambos; las medidas del icono son una simplificación gráfica, no medidas del hardware.
+
+[Muestra vectorial con símbolos y pregunta ficticia](assets/note4-design/button-symbols.svg). La muestra recoge el diseño visual aprobado: rectángulos verticales estrechos, esquinas mínimamente redondeadas y énfasis con borde grueso y trama. La 0.4.5 incorpora los laterales a las respuestas binarias, incluidas preguntas de Nido y la elección de OTA. `DrawButtonSymbol` centraliza las tres variantes; las muestras nativas cubren ambos laterales, frontal, combinación, etiquetas largas y modales de pregunta y OTA. El círculo y las combinaciones quedan disponibles para próximas acciones explícitas; no se han añadido acciones nuevas. Verificar que no se recortan ni solapan texto o sombras. Comprobar por separado la legibilidad física.
+
 ## Modales y contexto de conversación
 
 - Mantener la misma estructura de cabecera en las vistas del agente: fecha del día visible a la izquierda e iconos compactos a la derecha.
@@ -153,3 +172,5 @@ Propuesta QR: modal de 352 × 218 centrada; QR Wi-Fi a la izquierda con módulos
 Vinculación por código: después de guardar la Wi-Fi, usar la modal de texto existente con «Vincular con Nido», seis dígitos, acceso a los ajustes, IP alternativa y caducidad de cinco minutos. `daily-modal-pairing.pgm` reproduce esta pantalla a 400 × 300 con datos ficticios; la prueba física sigue siendo independiente del renderizado.
 
 Actualización desde GitHub: al entrar en mantenimiento, mostrar progreso breve de consulta. Si hay versión posterior, reutilizar la modal binaria con «Nueva versión disponible», versión y «Actualizar / Configurar». Superior acepta; inferior, frontal o treinta segundos continúan a configuración. `daily-modal-github-update.pgm` reproduce la pantalla a 400 × 300; la prueba física es independiente del renderizado.
+
+La pantalla de mantenimiento muestra la versión completa de la aplicación en ejecución, muy pequeña y alineada a la derecha al pie de la modal, debajo de la ayuda para salir. Usar `TextTiny` (glifos de 3 × 5 en celdas de 4 × 7), tinta negra sin sombreado y márgenes libres; conservar el QR y su zona blanca. El dato viene del descriptor del firmware activo, nunca de la release disponible ni del destino de una descarga. Incorporado desde la 0.4.4, cargada y verificada por USB. Incluido también en la 0.4.5; lectura física pendiente de confirmar.

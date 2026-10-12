@@ -142,9 +142,7 @@ void Date(const char* iso, char* output, size_t size) {
 }
 void Choice(HearthCanvas& canvas, int y, int number, const char* label) {
     Rounded(canvas,kLeft,y,kContentWidth,38,5,true);
-    canvas.FillRect(kLeft+8,y+11,16,16,true);
-    char digit[2]={static_cast<char>('0'+number),0};
-    canvas.Text(kLeft+12,y+11,digit,1,true);
+    DrawButtonSymbol(canvas,kLeft+13,y+8,number==1 ? ButtonSymbol::Upper : ButtonSymbol::Lower);
     const int top=canvas.TextWidth(label)<=kContentWidth-44 ? 11 : 2;
     Wrap(canvas,y+top,label,1,2,kLeft+34,kContentWidth-44);
 }
@@ -167,6 +165,22 @@ void Base(HearthCanvas& canvas, const char* status, const char* title) {
     canvas.HLine(18, 256, 364);
     canvas.Text(18, 269, "Prueba local · sin conexión al agente");
 }
+}
+
+void DrawButtonSymbol(HearthCanvas& canvas,int x,int y,ButtonSymbol button) {
+    const bool front=button==ButtonSymbol::Front;
+    const int w=front ? 20 : 6,h=front ? 20 : 10;
+    for(int part=0;part<(front ? 1 : 2);++part) {
+        const bool active=front || (part==0 ? button==ButtonSymbol::Upper : button==ButtonSymbol::Lower);
+        const int stroke=active ? 2 : 1,top=y+part*12;
+        for(int py=0;py<h;++py)for(int px=0;px<w;++px) {
+            const int dx=2*px-19,dy=2*py-19;
+            const bool outer=front ? dx*dx+dy*dy<=19*19 : Inside(px,py,w,h,1);
+            if(!outer)continue;
+            const bool inner=front ? dx*dx+dy*dy<=15*15 : Inside(px-stroke,py-stroke,w-2*stroke,h-2*stroke,0);
+            canvas.Pixel(x+px,top+py,!inner || (active && px%2==0 && py%2==0));
+        }
+    }
 }
 
 void DrawReady(HearthCanvas& canvas, bool connected) {
@@ -294,7 +308,7 @@ void DrawHome(HearthCanvas& canvas,const HomeDay* day,const char* today,bool upd
 
     }
 }
-bool DrawMaintenance(HearthCanvas& canvas,const HearthCanvas& background,const char* ssid) {
+bool DrawMaintenance(HearthCanvas& canvas,const HearthCanvas& background,const char* ssid,const char* version) {
     // The temporary open AP uses a stable 11-character hardware-derived SSID.
     if(!ssid || std::strlen(ssid)>11)return false;
     auto escape=[](const char* value){std::string out;for(;*value;++value){if(std::strchr("\\;,:\"",*value))out+='\\';out+=*value;}return out;};
@@ -314,6 +328,7 @@ bool DrawMaintenance(HearthCanvas& canvas,const HearthCanvas& background,const c
     TextSmall(canvas,174,147,"red temporal");canvas.Text(174,161,"Sin contraseña");
     TextSmall(canvas,174,190,"si no abre la web:");TextSmall(canvas,174,204,"192.168.4.1");
     TextSmall(canvas,34,237,"frontal + inferior: salir");
+    if(version && std::strlen(version)<=31)TextTiny(canvas,366-TextTinyWidth(version),249,version);
     return true;
 }
 void DrawModal(HearthCanvas& canvas,const HearthCanvas& background,const DeviceCard& card) {
@@ -331,7 +346,7 @@ void DrawModal(HearthCanvas& canvas,const HearthCanvas& background,const DeviceC
         Wrap(canvas,y,card.body,1,std::max(1,(top+122-y)/18),34,332);
         for(int i=0;i<2;++i) {
             const int option_top=top+124+i*32;Rounded(canvas,34,option_top,332,28,4,true);
-            char number[4];std::snprintf(number,sizeof(number),"%d",i+1);TextSmall(canvas,42,option_top+9,number);
+            DrawButtonSymbol(canvas,42,option_top+3,i==0 ? ButtonSymbol::Upper : ButtonSymbol::Lower);
             Wrap(canvas,option_top+6,card.labels[i],1,1,56,300);
         }
     } else if(std::strcmp(card.type,"event")==0) {

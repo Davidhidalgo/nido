@@ -610,8 +610,8 @@ void RunMaintenance() {
             if(!nido::DeviceGithubInstall(MaintenancePower)){MaintenanceMessage("Actualización no instalada","Comprueba la conexión y la batería. Abriendo configuración…");vTaskDelay(pdMS_TO_TICKS(2000));}}
     }
     if(!nido::DeviceMaintenanceStart(MaintenancePower)){MaintenanceMessage("Mantenimiento no disponible","Espera a que termine la conexión y vuelve a mantener los dos botones.");g_request_maintenance=false;return;}
-    char body[320];std::snprintf(body,sizeof(body),"red: %s\nsin contraseña\nAbre http://192.168.4.1\nFrontal + inferior: salir",nido::DeviceMaintenanceName());
-    if(nido::DrawMaintenance(g_canvas,g_day_canvas,nido::DeviceMaintenanceName()))ESP_ERROR_CHECK_WITHOUT_ABORT(Paint());
+    char body[320];std::snprintf(body,sizeof(body),"red: %s\nsin contraseña\nAbre http://192.168.4.1\nFrontal + inferior: salir\n%s",nido::DeviceMaintenanceName(),nido::DeviceVersion());
+    if(nido::DrawMaintenance(g_canvas,g_day_canvas,nido::DeviceMaintenanceName(),nido::DeviceVersion()))ESP_ERROR_CHECK_WITHOUT_ABORT(Paint());
     else MaintenanceMessage("Configurar Nido",body);
     nido::MaintenanceGesture exit;
     while(nido::DeviceMaintenanceTick(exit.Tick(FrontHeld(),gpio_get_level(GPIO_NUM_18)==0,esp_timer_get_time()/1000))){nido::DeviceCard pairing={};if(nido::DevicePairingCard(pairing))MaintenancePaint(pairing);nido::DeviceBootGuard();vTaskDelay(pdMS_TO_TICKS(20));}
