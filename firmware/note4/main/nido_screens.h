@@ -7,6 +7,7 @@ namespace nido {
 enum class ButtonSymbol { Upper, Lower, Front };
 void DrawButtonSymbol(HearthCanvas& canvas,int x,int y,ButtonSymbol button);
 void DrawHome(HearthCanvas& canvas, const HomeDay* day, const char* today, bool updating=false, bool failed=false, bool demo=false, bool low_battery=false, const HomeSnapshot* snapshot=nullptr);
+void DrawFirmwareUpdate(HearthCanvas& canvas, bool failed=false);
 void DrawModal(HearthCanvas& canvas, const HearthCanvas& background, const DeviceCard& card);
 bool DrawMaintenance(HearthCanvas& canvas, const HearthCanvas& background, const char* ssid,const char* version);
 void DrawReady(HearthCanvas& canvas, bool connected = false);

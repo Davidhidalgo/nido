@@ -1,6 +1,15 @@
 #pragma once
 #include <cstdint>
 namespace nido {
+// The panel retains its physical image across reboot; RAM does not retain a frame.
+// Automatic retries must not replace that image with an empty home view.
+struct BootDisplay {
+    bool awaiting_home=false;
+    void Begin(bool configured) { awaiting_home=configured; }
+    void HomeResult(bool ok) { if(ok)awaiting_home=false; }
+    void ShowInteraction() { awaiting_home=false; }
+    bool CanPaint() const { return !awaiting_home; }
+};
 enum class UiMode { Day, Capturing, Processing, Question, Result, Error, Uncertain };
 enum class UiEvent { Press, Click, SendAudio, Ask, Done, Fail, Unknown, Dismiss, Expire };
 struct UiFlow {

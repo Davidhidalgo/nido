@@ -47,6 +47,7 @@ struct DeviceResult {
 // 0=keep running, 1=stop, 2=interrupt and preserve the conversation.
 using DeviceCancelPoll = int (*)();
 using DevicePaint = void (*)(const DeviceCard&);
+using DeviceUpdatePaint = void (*)(bool failed);
 bool DeviceHome(HomeSnapshot& snapshot, const char* anchor = nullptr, bool dismiss = false);
 bool DeviceEnabled();
 using DevicePower = bool (*)();
@@ -60,7 +61,7 @@ bool DevicePairingCard(DeviceCard& card);
 bool DeviceMaintenanceTick(bool exit=false);
 bool DeviceGithubCheck(char* version,size_t capacity);
 bool DeviceGithubInstall(DevicePower power);
-void DeviceCheckUpdate(DevicePower power, DevicePaint paint);
+void DeviceCheckUpdate(DevicePower power, DeviceUpdatePaint paint);
 bool DeviceWifiConnected();
 void DeviceWarmWifi();
 bool DeviceWifiAwake();

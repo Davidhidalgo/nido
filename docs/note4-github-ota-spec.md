@@ -26,7 +26,7 @@ Al aceptar, conservar la URL del asset bajo el tag, su tamaño y la versión mos
 
 Reutilizar el lector `.nidoota`, `OtaWriter`, clave pública y comprobaciones existentes: modelo NOTE4 monocromo, configuración compatible, firma, longitud, hash, descriptor y energía suficiente. Exigir batería válida de al menos 40 % o alimentación externa sin fallo. Escribir solo la aplicación inactiva, conservando NVS, Wi-Fi, vinculación, bootloader y particiones. Reiniciar solo tras la verificación completa.
 
-El nuevo arranque confirma la aplicación después de inicializar configuración, placa y pantalla. El rollback y la guardia de arranque existentes recuperan la anterior si no se confirma. Una descarga interrumpida no se vuelve a instalar automáticamente; conservar la aplicación activa y ofrecer volver a configuración. No añadir antirollback irreversible ni quemar eFuses en este alcance.
+During an accepted installation, retain the daily view with a small header download icon. A configured connected boot confirms the application after configuration, board and display-controller initialization without refreshing the panel. Keep its physical image until a successful home response; failed network retries must not replace it with an empty view. Explicit voice/setup interactions may replace it. Existing rollback and the boot guard recover the previous application if confirmation fails. An interrupted download is not installed again automatically; retain the active application and offer configuration. Do not add irreversible antirollback or burn eFuses.
 
 ## Convivencia con el plugin
 

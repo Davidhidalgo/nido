@@ -344,6 +344,17 @@ void DrawHome(HearthCanvas& canvas,const HomeDay* day,const char* today,bool upd
 
     }
 }
+void DrawFirmwareUpdate(HearthCanvas& canvas,bool failed) {
+    // Only the header's status slot changes; retain date, battery and every card.
+    canvas.FillRect(352,9,21,18,false);
+    if(failed) {
+        canvas.Line(362,11,368,23);canvas.Line(368,23,356,23);canvas.Line(356,23,362,11);
+        canvas.Line(362,15,362,18);canvas.Pixel(362,21,true);
+    } else {
+        canvas.Line(362,11,362,19);canvas.Line(358,15,362,19);canvas.Line(366,15,362,19);
+        canvas.Line(356,21,356,24);canvas.HLine(356,24,13);canvas.Line(368,21,368,24);
+    }
+}
 bool DrawMaintenance(HearthCanvas& canvas,const HearthCanvas& background,const char* ssid,const char* version) {
     // The temporary open AP uses a stable 11-character hardware-derived SSID.
     if(!ssid || std::strlen(ssid)>11)return false;

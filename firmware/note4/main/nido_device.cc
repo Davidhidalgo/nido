@@ -566,7 +566,7 @@ bool DeviceGithubInstall(DevicePower power){
     if(!GithubInstall(g_github_release)){SaveJob(old_job.c_str(),old_version.c_str());return false;}
     esp_restart();return true;
 }
-void DeviceCheckUpdate(DevicePower power,DevicePaint paint) {
+void DeviceCheckUpdate(DevicePower power,DeviceUpdatePaint paint) {
     WifiScope wifi;if(!wifi.Connect())return;
     char path[256];const std::string job=SavedString("ota_job"),expected_version=SavedString("ota_version");std::snprintf(path,sizeof(path),"/v1/maintenance/check?version=%s&boot=%s&job=%s",DeviceVersion(),job==g_boot_job ? FirmwareBootState(expected_version.c_str()) : "valid",job.c_str());
     HttpSession http(path,true);if(!http.Request(nullptr,0,nullptr))return;
@@ -583,11 +583,11 @@ void DeviceCheckUpdate(DevicePower power,DevicePaint paint) {
     if(!power || !power()){report("deferred","battery");return;}
     // Acquire the job before writing. A lost reply is reconciled on the next status read.
     if(!report("installing"))return;
-    DeviceCard progress={};std::strcpy(progress.status,"progress");std::strcpy(progress.type,"text");std::strcpy(progress.title,"Actualizando Nido");std::strcpy(progress.body,"Mantén la alimentación. El Note4 se reiniciará al terminar.");paint(progress);
+    paint(false);
     OtaWriter writer;
     bool ok=writer.Begin(manifest,signature);
-    if(!ok){report("failed","signature");return;}
-    if(!SaveJob(id.c_str(),writer.version.c_str())){report("failed","storage");return;}
+    if(!ok){report("failed","signature");paint(true);return;}
+    if(!SaveJob(id.c_str(),writer.version.c_str())){report("failed","storage");paint(true);return;}
     const std::string url=g_config.endpoint+"/v1/maintenance/binary?id="+id;
     esp_http_client_config_t config={};config.url=url.c_str();config.cert_pem=g_config.certificate.c_str();config.timeout_ms=30000;config.disable_auto_redirect=true;
     auto client=esp_http_client_init(&config);
@@ -602,7 +602,7 @@ void DeviceCheckUpdate(DevicePower power,DevicePaint paint) {
     if(ok)ok=writer.Finish();
     if(ok){vTaskDelay(pdMS_TO_TICKS(250));esp_restart();}
     report("failed","download");
-    std::strcpy(progress.status,"error");std::strcpy(progress.title,"Actualización interrumpida");std::strcpy(progress.body,"Se conserva el firmware actual. Consulta el estado en Nido.");paint(progress);
+    paint(true);
 }
 
 void DeviceWarmWifi() {
@@ -658,7 +658,7 @@ bool DeviceMaintenanceStart(DevicePower){return false;}
 const char* DeviceMaintenanceName(){return "";}
 bool DevicePairingCard(DeviceCard&){return false;}
 bool DeviceMaintenanceTick(bool){return false;}
-void DeviceCheckUpdate(DevicePower,DevicePaint){}
+void DeviceCheckUpdate(DevicePower,DeviceUpdatePaint){}
 void DeviceWarmWifi() {}
 bool DeviceWifiAwake(){return false;}
 bool DeviceWifiWarming(){return false;}

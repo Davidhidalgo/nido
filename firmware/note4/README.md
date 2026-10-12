@@ -177,3 +177,11 @@ Las trazas `latency` del firmware separan conexión Wi-Fi y petición HTTP (incl
 <!-- Installed-version header in main/nido_device.cc, optional updateAvailable parsing in main/nido_home.cc and download icon in main/nido_screens.cc -->
 
 Version 0.4.8 reports its installed firmware version during home refreshes and shows a small download arrow when the bridge returns `updateAvailable`. Missing status from an older bridge means no icon. This does not start a download or installation; use the existing maintenance flow to review and accept an update.
+
+<!-- Quiet OTA indicator in main/nido_screens.cc and retained boot image in main/app_main.cc and main/nido_ui.h -->
+
+## Retained screen during firmware updates
+
+Queued OTA downloads and accepted GitHub installations show a small download icon in the header while retaining the daily view. A queued update failure uses the same status slot for an error icon. Local web uploads keep the maintenance interface. Native pixel tests ensure the update overlay preserves all pixels outside that slot.
+
+A configured connected device initializes the panel controller without refreshing its physical image at startup. It confirms the application after board, queues, configuration and controller initialization, independently of network availability. The previous e-paper image (including any update icon) remains until the first successful home response; failed retries do not paint an empty summary. The first new frame uses a full refresh because the previous framebuffer is not known in RAM. Explicit voice or maintenance interactions can replace the retained image; unconfigured devices still show setup. Rollback and the boot guard remain active until confirmation. Native lifecycle tests and compilation do not establish physical flicker or recovery behavior.

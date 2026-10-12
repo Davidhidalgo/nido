@@ -56,6 +56,8 @@ zectrix_epd_handle_t g_panel = nullptr;
 bool g_have_frame = false;
 QueueHandle_t g_audio_events;
 nido::UiFlow g_flow;
+nido::BootDisplay g_boot_display;
+bool g_update_failed=false;
 bool g_accept_next_press = false;
 char g_question_turn[37] = {};
 char g_question_card[65] = {};
@@ -131,7 +133,7 @@ void DrawCurrent() {
         const char* months[]={"ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"};
         std::snprintf(g_placeholder.label,sizeof(g_placeholder.label),"%s %02d %s",weekdays[parsed.tm_wday],d,months[m-1]);day=&g_placeholder;
     }
-    nido::DrawHome(g_day_canvas,day,g_today,g_sync_active,g_home_failed,g_home.demo,g_low_battery,&g_home);
+    nido::DrawHome(g_day_canvas,day,g_today,g_sync_active,g_home_failed || g_update_failed,g_home.demo,g_low_battery,&g_home);
     if(g_flow.modal())nido::DrawModal(g_canvas,g_day_canvas,g_modal_card);else g_canvas=g_day_canvas;
 }
 bool StartHomeSync(bool today=false,bool dismiss=false) {
@@ -147,7 +149,9 @@ bool FinishHomeSync() {
     HomeRequest* request=nullptr;
     if(xQueueReceive(g_home_events,&request,0)!=pdTRUE)return false;
     g_sync_active=false;g_next_sync_us=esp_timer_get_time()+nido::kRefreshUs;g_home_failed=!request->ok;
+    g_boot_display.HomeResult(request->ok);
     if(request->ok){
+        g_update_failed=false;
         g_check_update=true;
         const bool follow_today=!(*g_selected_date) || std::strcmp(g_selected_date,g_home.today)==0;
         g_home=request->snapshot;
@@ -212,15 +216,19 @@ void RestorePins() {
     }
 }
 
-esp_err_t Paint(bool wifi_warning = false) {
-    if (!nido::DeviceEnabled()) nido::DrawStatusIcons(g_canvas,g_low_battery,!wifi_warning || nido::DeviceWifiConnected());
+esp_err_t PreparePanel() {
     if (!g_panel) {
         zectrix_epd_config_t config;
         zectrix_epd_get_default_config(&config);
         esp_err_t result = zectrix_epd_new(&config, &g_panel);
         if (result != ESP_OK) return result;
     }
-    esp_err_t powered = zectrix_epd_power_on(g_panel);
+    return zectrix_epd_power_on(g_panel);
+}
+esp_err_t Paint(bool wifi_warning = false) {
+    if(!g_boot_display.CanPaint())return ESP_OK;
+    if (!nido::DeviceEnabled()) nido::DrawStatusIcons(g_canvas,g_low_battery,!wifi_warning || nido::DeviceWifiConnected());
+    esp_err_t powered = PreparePanel();
     if (powered != ESP_OK) return powered;
     esp_err_t result = ESP_OK;
     if (!g_have_frame) {
@@ -247,6 +255,7 @@ esp_err_t Paint(bool wifi_warning = false) {
 }
 
 void DevicePaint(const nido::DeviceCard& card) {
+    g_boot_display.ShowInteraction();
     if (std::strcmp(card.type,"binary")==0 && std::strcmp(card.status,"question")==0) {
         if (std::strcmp(card.id,g_button_card)!=0) {
             g_button_latched = 0;
@@ -567,7 +576,13 @@ bool MaintenancePower() {
     return nido::UpdatePowerAllowed(power.battery_valid,power.battery_percent,power.charge.power_present && !power.charge.fault);
 }
 void MaintenancePaint(const nido::DeviceCard& card) {
+    g_boot_display.ShowInteraction();
     nido::DrawModal(g_canvas,g_day_canvas,card);ESP_ERROR_CHECK_WITHOUT_ABORT(Paint());
+}
+void FirmwarePaint(bool failed) {
+    g_update_failed=failed;
+    g_canvas=g_day_canvas;
+    nido::DrawFirmwareUpdate(g_canvas,failed);ESP_ERROR_CHECK_WITHOUT_ABORT(Paint());
 }
 void MaintenanceMessage(const char* title,const char* body) {
     nido::DeviceCard card={};std::strcpy(card.type,"text");std::strcpy(card.status,"progress");
@@ -606,7 +621,7 @@ void RunMaintenance() {
             if(armed&&upper){update=true;break;}
             nido::DeviceBootGuard();vTaskDelay(pdMS_TO_TICKS(20));
         }
-        if(update){MaintenanceMessage("Actualizando Nido","Descargando y verificando el firmware. Mantén la alimentación conectada.");
+        if(update){FirmwarePaint(false);
             if(!nido::DeviceGithubInstall(MaintenancePower)){MaintenanceMessage("Actualización no instalada","Comprueba la conexión y la batería. Abriendo configuración…");vTaskDelay(pdMS_TO_TICKS(2000));}}
     }
     if(!nido::DeviceMaintenanceStart(MaintenancePower)){MaintenanceMessage("Mantenimiento no disponible","Espera a que termine la conexión y vuelve a mantener los dos botones.");g_request_maintenance=false;return;}
@@ -822,8 +837,11 @@ extern "C" void app_main() {
     const bool configured=nido::DeviceConfigured();
 
     if(nido::DeviceEnabled()) {
+        g_boot_display.Begin(configured);
         DrawCurrent();
-        if(configured && Paint()==ESP_OK)nido::DeviceConfirmFirmware();
+        // Reset/select the controller and check BUSY without sending any refresh.
+        // Boot validation must not depend on Wi-Fi or overwrite retained e-paper.
+        if(configured && PreparePanel()==ESP_OK)nido::DeviceConfirmFirmware();
         if(!configured)RunMaintenance();
         if(MaintenanceChord() && g_request_maintenance)RunMaintenance();
         // A front wake starts audio first. Cold boots without a press fetch the daily view.
@@ -848,7 +866,7 @@ extern "C" void app_main() {
             DrainNetwork();
             if(FinishHomeSync())ESP_ERROR_CHECK_WITHOUT_ABORT(Paint());
             if(g_check_update && !g_sync_active && !g_network_active && g_network_jobs.empty() && !g_flow.modal() && !FrontHeld()) {
-                g_check_update=false;nido::DeviceCheckUpdate(MaintenancePower,MaintenancePaint);DrawCurrent();ESP_ERROR_CHECK_WITHOUT_ABORT(Paint());
+                g_check_update=false;nido::DeviceCheckUpdate(MaintenancePower,FirmwarePaint);DrawCurrent();ESP_ERROR_CHECK_WITHOUT_ABORT(Paint());
             }
             if(g_session_expires_at && SessionRemaining()==0 && !g_flow.busy()) {
                 g_session_expires_at=0;g_flow.Dispatch(nido::UiEvent::Expire);g_catching_buttons=false;g_button_latched=0;

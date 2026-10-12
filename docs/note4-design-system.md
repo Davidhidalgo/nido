@@ -192,3 +192,7 @@ Firmware 0.4.8 adds a compact downward arrow and tray at the right of the daily 
 ## Menu ordering
 
 Within each local day of the menu calendar, the first event by start instant is lunch and the second is dinner. A single event is lunch, including an all-day event. Changing configured meal times does not change this classification. Cancelled events are ignored. More than two events, equal start instants, or a pair containing an all-day event require clarification; the previous successful snapshot is retained on a conflict. Compare actual instants across daylight-saving changes, rather than clock labels. Configured times still control creation defaults and the meal dimming threshold.
+
+## Quiet firmware update and startup
+
+Retain the daily view during queued OTA downloads and accepted GitHub installations, changing only the compact header status slot. A configured connected startup must not paint an empty summary or a startup modal: the panel retains its previous physical image, including an existing update icon, until fresh home data arrives. Failed retries leave it untouched. Explicit voice and maintenance interactions can replace it; initial setup still displays its instructions. The first fresh frame uses a full refresh. Verify physical behavior separately from the native previews `daily-firmware-updating.pgm` and `daily-firmware-error.pgm`.

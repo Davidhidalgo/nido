@@ -256,6 +256,28 @@ int main(int argc,char** argv) {
         ++dots;assert(y==16 && (x==10 || x==12 || x==14));
     }
     assert(dots==3);
+    // Startup performs no visible write before fresh data, including failed retries
+    // and short-click refreshes. A deliberate voice/setup view may replace it.
+    BootDisplay boot;boot.Begin(true);
+    assert(!boot.CanPaint());
+    for(int retry=0;retry<3;++retry){boot.HomeResult(false);assert(!boot.CanPaint());}
+    boot.HomeResult(true);assert(boot.CanPaint());
+    boot.HomeResult(false);assert(boot.CanPaint()); // Cached frame now exists.
+    boot.Begin(true);boot.ShowInteraction();assert(boot.CanPaint());
+    boot.HomeResult(false);assert(boot.CanPaint());
+    boot.Begin(false);assert(boot.CanPaint()); // First-time setup remains visible.
+    DrawHome(background,&day,home->today,false,false,false,true);
+    for(bool failed:{false,true}) {
+        canvas=background;DrawFirmwareUpdate(canvas,failed);
+        bool changed=false;
+        for(int y=0;y<300;++y)for(int x=0;x<400;++x) {
+            const int offset=y*50+x/8,mask=0x80>>(x%8);
+            if((canvas.data()[offset]&mask)==(background.data()[offset]&mask))continue;
+            changed=true;assert(x>=352 && x<373 && y>=9 && y<27);
+        }
+        assert(changed);
+        if(argc>1)Save(std::string(argv[1])+(failed ? "/daily-firmware-error.pgm" : "/daily-firmware-updating.pgm"),canvas);
+    }
     // Long text and all 6-column layouts stay inside the white modal surface.
     std::memset(card.body,'W',sizeof(card.body)-1);DrawModal(canvas,background,card);
     std::puts("Home parsing, UI flow and daily/modal rendering verified");
