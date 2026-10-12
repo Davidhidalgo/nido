@@ -52,7 +52,7 @@ void TextTiny(HearthCanvas& c,int x,int y,const char* text) {
     static const unsigned char digits[10][5]={
       {7,5,5,5,7},{2,6,2,2,7},{6,1,2,4,7},{6,1,2,1,6},{5,5,7,1,1},
       {7,4,6,1,6},{3,4,6,5,2},{7,1,2,2,2},{2,5,2,5,2},{2,5,3,1,6}};
-    static const unsigned char unknown[5]={7,1,2,0,2},dash[5]={0,0,7,0,0},dots[5]={0,0,0,0,5};
+    static const unsigned char unknown[5]={7,1,2,0,2},dash[5]={0,0,7,0,0},dot[5]={0,0,0,0,2};
     const auto* at=reinterpret_cast<const unsigned char*>(text);
     while(*at) {
         unsigned int ch=*at++;bool accent=false,grave=false,tilde=false;
@@ -78,9 +78,12 @@ void TextTiny(HearthCanvas& c,int x,int y,const char* text) {
           case 0xda:case 0xfa:ch='u';accent=true;break;
           case 0xd1:case 0xf1:ch='n';tilde=true;break;
           case 0x2013:case 0x2014:ch='-';break;
-          case 0x2026:ch='.';break;
+          case 0x2026:
+            // Three one-pixel dots, one blank pixel apart, in a single 6x7 cell.
+            for(int px=0;px<5;px+=2)c.Pixel(x+px,y+6,true);
+            x+=6;continue;
         }
-        const auto* glyph=ch>='a'&&ch<='z' ? letters[ch-'a'] : ch>='0'&&ch<='9' ? digits[ch-'0'] : ch=='-' ? dash : ch=='.' ? dots : ch==' ' ? nullptr : unknown;
+        const auto* glyph=ch>='a'&&ch<='z' ? letters[ch-'a'] : ch>='0'&&ch<='9' ? digits[ch-'0'] : ch=='-' ? dash : ch=='.' ? dot : ch==' ' ? nullptr : unknown;
         if(accent){c.Pixel(x+2,y,true);c.Pixel(x+1,y+1,true);}
         if(grave){c.Pixel(x,y,true);c.Pixel(x+1,y+1,true);}
         if(tilde){c.Pixel(x,y+1,true);c.Pixel(x+1,y,true);c.Pixel(x+2,y+1,true);}
@@ -89,6 +92,13 @@ void TextTiny(HearthCanvas& c,int x,int y,const char* text) {
         x+=4;
     }
 }
-int TextTinyWidth(const char* text) {return TextSmallWidth(text)/6*4;}
+int TextTinyWidth(const char* text) {
+    int width=0;
+    for(const auto* p=reinterpret_cast<const unsigned char*>(text);*p;++p) {
+        if((*p&0xc0)==0x80)continue;
+        width+=*p==0xe2 && p[1]==0x80 && p[2]==0xa6 ? 6 : 4;
+    }
+    return width;
+}
 
 }

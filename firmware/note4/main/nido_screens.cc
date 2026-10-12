@@ -68,7 +68,7 @@ void Frame(HearthCanvas& canvas) {
     Rounded(canvas,19,61,368,228,9,false,2);
     Rounded(canvas,16,56,368,228,9,true);
 }
-int Wrap(HearthCanvas&, int, const char*, int, int, int, int, bool small=false, bool draw=true);
+int Wrap(HearthCanvas&, int, const char*, int, int, int, int, bool small=false, bool draw=true, bool* overflow=nullptr);
 void Stamp(HearthCanvas& canvas, const char* label, const char* status) {
     Rounded(canvas,kStateLeft,16,kStateWidth,24,5,true);
     const int text_width=canvas.TextWidth(label);
@@ -90,9 +90,20 @@ size_t PreviousGlyph(const std::string& text, size_t end) {
     while (end && (static_cast<unsigned char>(text[end]) & 0xc0)==0x80) --end;
     return end;
 }
+std::string CalendarLabel(const char* text) {
+    std::string label=text;
+    size_t end=0;
+    for(int glyphs=0;end<label.size() && glyphs<7;++glyphs) {
+        ++end;
+        while(end<label.size() && (static_cast<unsigned char>(label[end])&0xc0)==0x80)++end;
+    }
+    if(end<label.size()){label.resize(end);label+="…";}
+    return label;
+}
 // Wrap within a real content box. Truncation always keeps a complete UTF-8 glyph.
 int Wrap(HearthCanvas& canvas, int y, const char* text, int scale, int rows,
-         int x=kLeft, int width=kContentWidth, bool small, bool draw) {
+         int x=kLeft, int width=kContentWidth, bool small, bool draw, bool* overflow) {
+    if(overflow)*overflow=text && *text && rows<=0;
     if (!text || !*text || rows<=0) return 0;
     const int step = small ? 12 : scale*16 + (scale==2 ? 0 : 2);
     const auto textWidth=[&](const std::string& value){return small ? TextSmallWidth(value.c_str()) : canvas.TextWidth(value.c_str(),scale);};
@@ -124,6 +135,7 @@ int Wrap(HearthCanvas& canvas, int y, const char* text, int scale, int rows,
         if (static_cast<int>(lines.size())>=rows) { truncated=at<content.size(); break; }
     }
     if (!line.empty() && static_cast<int>(lines.size())<rows) lines.push_back(line);
+    if(overflow)*overflow=truncated;
     if (truncated && !lines.empty()) {
         auto& last=lines.back();
         while (!last.empty() && textWidth(last+"…")>width)
@@ -307,26 +319,27 @@ void DrawHome(HearthCanvas& canvas,const HomeDay* day,const char* today,bool upd
             }
             TextSmall(canvas,x+8,y+7,label);
         }
-        const bool named=*event.calendar_label;
+        const std::string label=CalendarLabel(event.calendar_label);
+        const bool named=!label.empty();
+        // Both fonts include trailing cell space; one extra pixel leaves two blank
+        // pixels between the ellipsis ink and the time in a three-column card.
         const bool stacked=named && !event.all_day &&
-            TextTinyWidth(event.calendar_label)+3+TextSmallWidth(event.time)>w-16;
+            TextTinyWidth(label.c_str())+1+TextSmallWidth(event.time)>w-16;
         const int label_y=y+h-17-(stacked ? 12 : 0);
         const int title_y=y+(stacked && !future_day && !multiple_days ? 7 : future_day || multiple_days ? 20 : 18);
-        const int step=future_day ? 12 : 18, glyph_height=future_day ? 10 : 16;
         const int footer_y=named ? label_y : !event.all_day ? y+h-17 : y+h-4;
-        const int previous_rows=future_day ? (h-20-(event.all_day ? 4 : 21))/12 : rows==2 ? 2 : event.all_day ? 6 : 5;
-        const int title_rows=std::min(previous_rows,std::max(1,(footer_y-title_y-glyph_height+step)/step));
-        Wrap(canvas,title_y,event.summary,1,title_rows,x+8,w-16,future_day);
-        if(named) {
-            const int label_width=stacked || event.all_day ? w-16 : w-19-TextSmallWidth(event.time);
-            std::string label=event.calendar_label;
-            if(TextTinyWidth(label.c_str())>label_width) {
-                while(!label.empty() && TextTinyWidth((label+"…").c_str())>label_width)
-                    label.resize(PreviousGlyph(label,label.size()));
-                label+="…";
-            }
-            TextTiny(canvas,x+8,label_y+2,label.c_str());
+        const auto title_rows=[&](bool small) {
+            const int step=small ? 12 : 18,glyph_height=small ? 10 : 16;
+            const int limit=small ? (h-20-(event.all_day ? 4 : 21))/12 : rows==2 ? 2 : event.all_day ? 6 : 5;
+            return std::min(limit,std::max(1,(footer_y-title_y-glyph_height+step)/step));
+        };
+        bool small_title=future_day;
+        if(multiple_days && !small_title) {
+            // Measure with the same wrapping rules and reserved date/footer space.
+            Wrap(canvas,title_y,event.summary,1,title_rows(false),x+8,w-16,false,false,&small_title);
         }
+        Wrap(canvas,title_y,event.summary,1,title_rows(small_title),x+8,w-16,small_title);
+        if(named)TextTiny(canvas,x+8,label_y+2,label.c_str());
         if(!event.all_day)TextSmall(canvas,x+w-8-TextSmallWidth(event.time),y+h-17,event.time);
 
     }

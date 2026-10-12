@@ -176,7 +176,87 @@ int main(int argc,char** argv) {
     home->days[2].events[0]=home->days[2].events[1];home->days[2].event_count=1;
     DrawHome(background,&home->days[1],home->today,false,false,false,false,home.get());
     assert(std::memcmp(canvas.data(),background.data(),15000)==0);
-        // Long text and all 6-column layouts stay inside the white modal surface.
+    // Fictitious long multi-day titles and calendar names at every agenda density.
+    HomeDay typography=day;
+    typography.events[0]=trip;
+    std::strcpy(typography.events[0].summary,"Vacaciones en familia");
+    std::strcpy(typography.events[0].calendar_label,"Vacación familiar");
+    for(int count=1;count<=6;++count) {
+        typography.event_count=count;
+        DrawHome(canvas,&typography,home->today);
+        if(argc>1)Save(std::string(argv[1])+"/daily-multiday-long-"+std::to_string(count)+".pgm",canvas);
+        HomeDay empty_title=typography;empty_title.events[0].summary[0]='\0';
+        DrawHome(background,&empty_title,home->today);
+        if(count==1) {
+            // A title that fits keeps the main 8x16 font.
+            background.Text(24,160,"Vacaciones en familia");
+            assert(std::memcmp(canvas.data(),background.data(),canvas.size())==0);
+        } else if(count>=5) {
+            // The entire title fits in two small rows, above an unstacked footer.
+            TextSmall(background,24,160,"Vacaciones en");TextSmall(background,24,172,"familia");
+            assert(std::memcmp(canvas.data(),background.data(),canvas.size())==0);
+        }
+    }
+    // Seven Unicode characters plus one compact ellipsis; shorter labels are intact.
+    const char* full_labels[]={"","Casa","Família","Vacación familiar","Reunión extra","ABCDEFGHIJKLM"};
+    const char* short_labels[]={"","Casa","Família","Vacació…","Reunión…","ABCDEFG…"};
+    typography.events[0].summary[0]='\0';
+    for(int count=1;count<=6;++count)for(bool all_day:{false,true})for(int label=0;label<6;++label) {
+        typography.event_count=count;typography.events[0].all_day=all_day;
+        typography.events[0].calendar_label[0]='\0';DrawHome(background,&typography,home->today);
+        TextTiny(background,24,count<=3 ? 275 : 195,short_labels[label]);
+        std::strcpy(typography.events[0].calendar_label,full_labels[label]);
+        DrawHome(canvas,&typography,home->today);
+        assert(std::memcmp(canvas.data(),background.data(),canvas.size())==0);
+        assert(std::strcmp(typography.events[0].calendar_label,full_labels[label])==0);
+    }
+    // Short multi-day titles retain their hierarchy even in the densest grid.
+    std::strcpy(typography.events[0].summary,"Viaje");
+    DrawHome(canvas,&typography,home->today);
+    typography.events[0].summary[0]='\0';DrawHome(background,&typography,home->today);
+    background.Text(24,160,"Viaje");
+    assert(std::memcmp(canvas.data(),background.data(),canvas.size())==0);
+    // A multi-day event from the future cache keeps its small, crisp title.
+    auto future=std::make_unique<HomeSnapshot>();future->day_count=2;
+    future->days[0]=day;future->days[0].event_count=5;
+    future->days[1]=typography;future->days[1].event_count=1;
+    std::strcpy(future->days[1].date,"2026-10-03");
+    auto& future_trip=future->days[1].events[0];future_trip.all_day=false;
+    std::strcpy(future_trip.calendar_label,"Vacación familiar");
+    DrawHome(background,&future->days[0],home->today,false,false,false,false,future.get());
+    std::strcpy(future_trip.summary,"Vacaciones en familia");
+    DrawHome(canvas,&future->days[0],home->today,false,false,false,false,future.get());
+    TextSmall(background,274,240,"Vacaciones en");TextSmall(background,274,252,"familia");
+    assert(std::memcmp(canvas.data(),background.data(),canvas.size())==0);
+    if(argc>1)Save(std::string(argv[1])+"/daily-multiday-long-future.pgm",canvas);
+    // Maximum-length unbroken titles stay between dates and footer in all layouts,
+    // including an unusually wide time range that puts the calendar on its own row.
+    for(int count=1;count<=6;++count)for(bool all_day:{false,true})for(bool stacked:{false,true}) {
+        typography.event_count=count;typography.events[0].all_day=all_day;
+        std::strcpy(typography.events[0].time,stacked ? "18:00 – 10:00" : "18:00–10:00");
+        typography.events[0].summary[0]='\0';DrawHome(background,&typography,home->today);
+        std::memset(typography.events[0].summary,'W',sizeof(typography.events[0].summary)-1);
+        DrawHome(canvas,&typography,home->today);
+        const int right=count==1 ? 376 : count==2 || count==4 ? 188 : 125;
+        const int bottom=count<=3 ? 273 : stacked && !all_day && count>=5 ? 181 : 193;
+        bool changed=false;
+        for(int y=0;y<300;++y)for(int x=0;x<400;++x) {
+            const int offset=y*50+x/8,mask=0x80>>(x%8);
+            if((canvas.data()[offset]&mask)==(background.data()[offset]&mask))continue;
+            changed=true;assert(x>=24 && x<right && y>=160 && y<bottom);
+        }
+        assert(changed);
+    }
+    // The tiny ellipsis is three distinct pixels, not two dots or three wide cells.
+    assert(TextTinyWidth("…")==6);assert(TextTinyWidth("Vacació…")==34);
+    tiny.Clear();TextTiny(tiny,10,10,"…");
+    int dots=0;
+    for(int y=0;y<300;++y)for(int x=0;x<400;++x) {
+        if(tiny.data()[y*50+x/8]&(0x80>>(x%8)))continue;
+        ++dots;assert(y==16 && (x==10 || x==12 || x==14));
+    }
+    assert(dots==3);
+    // Long text and all 6-column layouts stay inside the white modal surface.
     std::memset(card.body,'W',sizeof(card.body)-1);DrawModal(canvas,background,card);
     std::puts("Home parsing, UI flow and daily/modal rendering verified");
 }
