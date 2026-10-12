@@ -1,5 +1,7 @@
 # Verificación de Nido
 
+This is a historical evidence log, not a live backlog or a statement of the currently installed firmware. Reconcile old pending items with later evidence before scheduling work. See [next steps](next-steps.md) and [session workflow](session-workflow.md).
+
 Este documento es un registro histórico. Las rutas antiguas de capturas y diagnósticos pueden haberse trasladado al archivo privado de desarrollo; no son dependencias para reproducir las pruebas. Usa [la guía de desarrollo](development.md) y [la organización de datos](data-layout.md) para los procedimientos y destinos actuales.
 
 Fecha: 17 de septiembre de 2026. Equipo: macOS Apple Silicon. OpenClaw 2026.9.4, Node 24.16.0.

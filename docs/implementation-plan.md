@@ -1,5 +1,7 @@
 # Nido: plan del MVP
 
+Historical MVP plan (initial snapshot: 2026-09-17). Its milestones and proposals preserve design context, not current priority or deployment state. Later NOTE4 and public GitHub work supersedes the early deferrals; the current data layout is documented separately. See [next steps](next-steps.md) and [session workflow](session-workflow.md).
+
 Estado: implementación local iniciada el 17 de septiembre de 2026. OpenClaw 2026.9.4, agentes y extensión preparados en modo demo; conexiones reales y validación familiar pendientes. Este documento sustituye el plan anterior de aplicación propia con Nx y un agente construido sobre un SDK.
 
 La instalación actual y sus límites están en [la guía de inicio](getting-started.md); las pruebas realizadas, en [verificación](verification.md). Los hitos siguientes siguen siendo criterios de aceptación, no una afirmación de que todo esté completado.

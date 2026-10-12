@@ -42,6 +42,8 @@ El firmware conectado genérico admite configuración por punto de acceso propio
 
 <!-- Documentos existentes en docs/ -->
 
+- [Next steps and session handoff](docs/next-steps.md).
+- [Session workflow](docs/session-workflow.md).
 - [Arquitectura](docs/architecture.md).
 - [Memoria conversacional con Honcho](docs/memory.md).
 - [Guía para desarrollar y diagnosticar](docs/development.md).
@@ -63,7 +65,9 @@ El firmware conectado genérico admite configuración por punto de acceso propio
 
 `pnpm test`, `pnpm run typecheck`, `pnpm run lint`, `pnpm run format:check` y `pnpm run build`. `pnpm run test:plugin:isolated` instala el paquete en un host temporal con un agente existente y verifica el asistente. `pnpm run test:gateway:isolated` verifica permisos y operaciones contra un Gateway demo temporal, sin leer la instalación familiar.
 
-Para continuar el desarrollo empieza por [AGENTS.md](AGENTS.md) y la [guía de desarrollo](docs/development.md). El contexto reutilizable está en el repo con datos ficticios; no necesitas el historial de chats ni diagnósticos privados.
+<!-- Development entry points and priority ownership from AGENTS.md, docs/session-workflow.md and docs/next-steps.md -->
+
+Start development with [AGENTS.md](AGENTS.md), the [session workflow](docs/session-workflow.md), and the [current resume point](docs/next-steps.md). Check actual Git state before continuing; the register owns current priorities and links to technical plans and evidence. The [development guide](docs/development.md) uses fictitious data and requires neither past chats nor private diagnostics.
 
 <!-- Estado privado de scripts/private-state.mjs y preparación de scripts/prepare-local.mjs -->
 

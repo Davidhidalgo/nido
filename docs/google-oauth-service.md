@@ -1,5 +1,7 @@
 # La app de Google de Nido
 
+This guide owns the OAuth architecture and deployment requirements. Production readiness and scheduling are tracked centrally. See [next steps](next-steps.md) and [session workflow](session-workflow.md).
+
 El usuario instala el plugin, pulsa **Conectar con Google** y autoriza la app compartida de Nido. No necesita un proyecto de Google Cloud, archivos de credenciales, una URL pública en su OpenClaw ni un túnel SSH. El servicio descrito aquí lo mantiene el distribuidor de Nido una sola vez.
 
 El código está implementado y se verifica con respuestas ficticias de Google. **La URL pública y el cliente Web de producción siguen pendientes de configurar.** La distribución actual ofrece la demo y muestra la conexión a Google como no disponible. No hay un servicio activo implícito ni se ha modificado el proyecto de Google de una instalación real.

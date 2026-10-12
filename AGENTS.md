@@ -10,6 +10,10 @@ Lee [arquitectura](docs/architecture.md), [desarrollo y diagnóstico](docs/devel
 
 El código, las pruebas y estas guías deben permitir trabajar sin acceder a la familia real ni a conversaciones de Codex anteriores. Cuando descubras algo útil, consérvalo como una prueba con datos ficticios o una explicación genérica en el repo. No dependas de scripts privados sueltos para verificar el proyecto.
 
+## Session continuity
+
+At the start of every development session, read [next steps](docs/next-steps.md) and [the session workflow](docs/session-workflow.md), then check the actual Git state before choosing work. Keep current priority, stable task IDs, ideas, blockers, and the resume point in that register; technical plans retain details and link back to it. Distinguish user requests, assistant proposals, and historical items needing review. Recording an idea does not authorize implementation. Before ending, update task states, evidence, remaining work, and a concrete next action. Preserve existing changes and all privacy, runtime, and hardware rules below.
+
 ## Datos y entornos
 
 - `.local` apunta a estado privado externo de OpenClaw/Nido. Contiene familias real y demo, credenciales, historial y adjuntos. No es un lugar para experimentos de desarrollo.

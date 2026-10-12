@@ -1,5 +1,7 @@
 # Desarrollar y diagnosticar sin datos familiares
 
+For every development session, use the continuity workflow and reconcile the register with actual Git state before working. Update the resume point before ending. See [next steps](next-steps.md) and [session workflow](session-workflow.md).
+
 `AGENTS.md` es el punto de entrada para asistentes de programación. Este documento y `architecture.md` contienen el contexto necesario para continuar desde una copia limpia del repo. El archivo privado de experimentos conserva evidencias antiguas, pero no es una dependencia del desarrollo.
 
 ## Instalación como plugin

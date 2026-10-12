@@ -1,5 +1,7 @@
 # Decisiones de implementación
 
+These notes retain technical rationale. Current priorities and the dated decision index are maintained centrally. See [next steps](next-steps.md) and [session workflow](session-workflow.md).
+
 ## Extensión pequeña de Calendar
 
 Se revisó [openclaw-google-workspace de tensorfold](https://github.com/tensorfold/openclaw-google-workspace). Su configuración documenta acceso de Calendar global de lectura/escritura, pero no las autorizaciones distintas por agente y calendario de Nido. No se instaló ese plugin ni se concedió acceso general a Google Workspace.
