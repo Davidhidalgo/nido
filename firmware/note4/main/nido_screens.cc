@@ -68,7 +68,7 @@ void Frame(HearthCanvas& canvas) {
     Rounded(canvas,19,61,368,228,9,false,2);
     Rounded(canvas,16,56,368,228,9,true);
 }
-int Wrap(HearthCanvas&, int, const char*, int, int, int, int, bool small=false);
+int Wrap(HearthCanvas&, int, const char*, int, int, int, int, bool small=false, bool draw=true);
 void Stamp(HearthCanvas& canvas, const char* label, const char* status) {
     Rounded(canvas,kStateLeft,16,kStateWidth,24,5,true);
     const int text_width=canvas.TextWidth(label);
@@ -92,7 +92,7 @@ size_t PreviousGlyph(const std::string& text, size_t end) {
 }
 // Wrap within a real content box. Truncation always keeps a complete UTF-8 glyph.
 int Wrap(HearthCanvas& canvas, int y, const char* text, int scale, int rows,
-         int x=kLeft, int width=kContentWidth, bool small) {
+         int x=kLeft, int width=kContentWidth, bool small, bool draw) {
     if (!text || !*text || rows<=0) return 0;
     const int step = small ? 12 : scale*16 + (scale==2 ? 0 : 2);
     const auto textWidth=[&](const std::string& value){return small ? TextSmallWidth(value.c_str()) : canvas.TextWidth(value.c_str(),scale);};
@@ -131,7 +131,7 @@ int Wrap(HearthCanvas& canvas, int y, const char* text, int scale, int rows,
         while (!last.empty() && last.back()==' ') last.pop_back();
         last+="…";
     }
-    for (size_t row=0;row<lines.size();++row) {
+    for (size_t row=0;draw && row<lines.size();++row) {
         if(small)TextSmall(canvas,x,y+row*step,lines[row].c_str());
         else canvas.Text(x,y+row*step,lines[row].c_str(),scale);
     }
@@ -140,11 +140,23 @@ int Wrap(HearthCanvas& canvas, int y, const char* text, int scale, int rows,
 void Date(const char* iso, char* output, size_t size) {
     std::snprintf(output,size,"%.2s/%.2s/%.4s",iso+8,iso+5,iso);
 }
-void Choice(HearthCanvas& canvas, int y, int number, const char* label) {
-    Rounded(canvas,kLeft,y,kContentWidth,38,5,true);
-    DrawButtonSymbol(canvas,kLeft+13,y+8,number==1 ? ButtonSymbol::Upper : ButtonSymbol::Lower);
-    const int top=canvas.TextWidth(label)<=kContentWidth-44 ? 11 : 2;
-    Wrap(canvas,y+top,label,1,2,kLeft+34,kContentWidth-44);
+int AnswerHeight(HearthCanvas& canvas,const char* label) {
+    return std::max(30,Wrap(canvas,0,label,1,2,0,296,false,false)+14);
+}
+void Answers(HearthCanvas& canvas,int top,const DeviceCard& card) {
+    const int first=AnswerHeight(canvas,card.labels[0]),second=AnswerHeight(canvas,card.labels[1]);
+    const int divider=top+first;
+    Rounded(canvas,34,top,320,first+second,2,true);
+    for(int x=44;x<344;++x)if(x%2==0)canvas.Pixel(x,divider,true);
+    for(int i=0;i<2;++i) {
+        // Keep the physical buttons together around the separator, even with unequal rows.
+        const int button_top=divider+(i ? 2 : -22);
+        Rounded(canvas,353,button_top,6,20,2,true);
+        canvas.FillRect(353,button_top,2,20,false);
+        canvas.Line(353,button_top,353,button_top+19);
+        canvas.HLine(353,button_top,3);canvas.HLine(353,button_top+19,3);
+        Wrap(canvas,(i ? divider : top)+7,card.labels[i],1,2,44,296);
+    }
 }
 int CompactTitle(HearthCanvas& canvas, const char* title, int rows=1) {
     const int height=Wrap(canvas,68,title,2,rows);
@@ -172,12 +184,12 @@ void DrawButtonSymbol(HearthCanvas& canvas,int x,int y,ButtonSymbol button) {
     const int w=front ? 20 : 6,h=front ? 20 : 10;
     for(int part=0;part<(front ? 1 : 2);++part) {
         const bool active=front || (part==0 ? button==ButtonSymbol::Upper : button==ButtonSymbol::Lower);
-        const int stroke=active ? 2 : 1,top=y+part*12;
+        const int stroke=1,top=y+part*12;
         for(int py=0;py<h;++py)for(int px=0;px<w;++px) {
             const int dx=2*px-19,dy=2*py-19;
             const bool outer=front ? dx*dx+dy*dy<=19*19 : Inside(px,py,w,h,1);
             if(!outer)continue;
-            const bool inner=front ? dx*dx+dy*dy<=15*15 : Inside(px-stroke,py-stroke,w-2*stroke,h-2*stroke,0);
+            const bool inner=front ? dx*dx+dy*dy<=17*17 : Inside(px-stroke,py-stroke,w-2*stroke,h-2*stroke,0);
             canvas.Pixel(x+px,top+py,!inner || (active && px%2==0 && py%2==0));
         }
     }
@@ -349,12 +361,9 @@ void DrawModal(HearthCanvas& canvas,const HearthCanvas& background,const DeviceC
     TextSmall(canvas,34,top+8,state);
     const int y=top+22+Wrap(canvas,top+22,card.title,1,2,34,332)+4;
     if(std::strcmp(card.type,"binary")==0) {
-        Wrap(canvas,y,card.body,1,std::max(1,(top+122-y)/18),34,332);
-        for(int i=0;i<2;++i) {
-            const int option_top=top+124+i*32;Rounded(canvas,34,option_top,332,28,4,true);
-            DrawButtonSymbol(canvas,42,option_top+3,i==0 ? ButtonSymbol::Upper : ButtonSymbol::Lower);
-            Wrap(canvas,option_top+6,card.labels[i],1,1,56,300);
-        }
+        const int answers_top=top+184-AnswerHeight(canvas,card.labels[0])-AnswerHeight(canvas,card.labels[1]);
+        Wrap(canvas,y,card.body,1,std::max(0,(answers_top-y-4)/18),34,332);
+        Answers(canvas,answers_top,card);
     } else if(std::strcmp(card.type,"event")==0) {
         const int next=y+Wrap(canvas,y,card.summary,1,2,34,332)+4;
         char date[11],end_date[11],line[80];Date(card.date,date,sizeof(date));Date(card.end_date,end_date,sizeof(end_date));
@@ -473,8 +482,9 @@ void DrawDeviceCard(HearthCanvas& canvas, const DeviceCard& card) {
     } else if (std::strcmp(card.type,"binary")==0) {
         const int height=Wrap(canvas,68,card.title,2,2);
         const int body_y=68+height+2;
-        Wrap(canvas,body_y,card.body,1,(200-body_y+2)/18);
-        Choice(canvas,202,1,card.labels[0]); Choice(canvas,242,2,card.labels[1]);
+        const int answers_top=280-AnswerHeight(canvas,card.labels[0])-AnswerHeight(canvas,card.labels[1]);
+        Wrap(canvas,body_y,card.body,1,std::max(0,(answers_top-body_y-4)/18));
+        Answers(canvas,answers_top,card);
     } else {
         const int height=Wrap(canvas,68,card.title,2,2);
         const int body_y=68+height+10;

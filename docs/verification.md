@@ -259,3 +259,7 @@ Confirmación física posterior (2026-10-12): el usuario confirma «instalación
 ## Atenuación de comidas pasadas (2026-10-12)
 
 El plugin calcula indicadores opcionales `lunchPast` y `dinnerPast` para las comidas planificadas de hoy, dos horas después de su horario configurado en la zona horaria de la instalación. El firmware atenúa únicamente borde y sombra, manteniendo el texto negro. La compatibilidad con puentes anteriores conserva el aspecto normal. Verificados los límites temporales, comidas tardías, otros días, campos inválidos y conservación del texto mediante pruebas TypeScript y nativas. Compilación ESP-IDF genérica 0.4.6 y comprobaciones del plugin superadas. El estado se recalcula al sincronizar; la apariencia física queda pendiente de confirmar.
+
+## Respuestas binarias agrupadas (2026-10-12)
+
+El firmware 0.4.7 incorpora la propuesta aprobada: caja común sin sombra, separador ligero con márgenes, botones de 6 × 20 píxeles integrados a la derecha y centrados alrededor del separador. Cada fila crece independientemente hasta dos líneas; se reserva espacio para las respuestas antes de dibujar el cuerpo de la pregunta. Las muestras nativas cubren ambas respuestas cortas, primera larga, segunda larga, ambas largas y título largo; las vistas modal y completa comparten el dibujo. La medición reutiliza el algoritmo de ajuste de texto sin reservar otro framebuffer en la pila. La validación física queda pendiente de instalación OTA.
