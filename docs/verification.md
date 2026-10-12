@@ -6,6 +6,14 @@ Este documento es un registro histórico. Las rutas antiguas de capturas y diagn
 
 Fecha: 17 de septiembre de 2026. Equipo: macOS Apple Silicon. OpenClaw 2026.9.4, Node 24.16.0.
 
+## 2026-10-13 — Quiet firmware update and startup (NIDO-020)
+
+- Native firmware tests pass with fictitious data, including repeated failed initial home requests, first success, explicit interaction/setup, and exact pixel preservation outside the update/error header slot.
+- `pnpm run test:note4-firmware` passed (native sanitizers, OTA and pairing regressions). `pnpm run note4:firmware build-generic` passed without private configuration or signing keys; this is a build check, not a distributable signed release.
+- Inspected the real 400 × 300 update preview. No family data was used.
+- Driver review confirms controller initialization/reset is separate from display refresh. The first fresh home frame retains the existing full-refresh path; boot confirmation does not depend on network availability.
+- No hardware was flashed, no release was published, and physical flicker, retained-image behavior and rollback remain unverified.
+
 ## Comprobado
 
 - Instalación local de OpenClaw; versión comprobada mediante CLI y registro npm. Node descargado de nodejs.org y checksum contrastado con su distribución oficial.

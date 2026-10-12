@@ -4,12 +4,11 @@ Last reconciled: **2026-10-13**. This is the single register of current prioriti
 
 ## Resume point
 
-- **Current scope:** NIDO-019 publication and authorized OTA delivery are complete. The paired NOTE4 now reports firmware 0.4.9 and a valid boot; its update operation is complete.
-- **Last repository result:** `3445332` contains the firmware correction, native regressions, and design/README documentation and has been pushed. The earlier uncommitted calendar-save correction is preserved separately.
-- **Delivery state:** [firmware 0.4.9](https://github.com/Davidhidalgo/nido/releases/tag/nido-ota-0.4.9) is the latest stable release. Its signed package was verified after public download, imported through the authenticated Nido API, and installed by one OTA request. A fresh authenticated read confirmed the same device, version 0.4.9, valid boot, and completed operation.
-- **Next concrete action:** inspect the long multi-day title and seven-character calendar label on the physical NOTE4 under NIDO-002. The completed update needs no retry.
-- **Outstanding evidence:** physical legibility of the new typography and other NIDO-002 appearance checks remain unverified.
-- **Priority:** NIDO-019 delivery is complete; no additional implementation task is selected. Other entries are not an automatic implementation queue.
+- **Current scope:** NIDO-020 implements quiet firmware updates and retained startup images locally in `9faa6e0`; publication and installation have not been requested for this change.
+- **Last delivery:** NIDO-019 firmware 0.4.9 remains the latest published and verified installed release. NIDO-018 calendar-save changes remain separate and uncommitted.
+- **Next concrete action:** review NIDO-020 delivery scope, then publish/install only when requested and observe the physical screen through restart and delayed connectivity.
+- **Outstanding evidence:** physical startup flicker and retained-image behavior, plus NIDO-002 appearance checks.
+- **Priority:** NIDO-020; other entries are not an automatic implementation queue.
 
 ## Reading states and origins
 
@@ -18,6 +17,15 @@ Last reconciled: **2026-10-13**. This is the single register of current prioriti
 States: `implemented / unreleased`, `needs verification`, `proposed`, `parked`, `historical review`, `done`, and `superseded`. Keep IDs stable, including when closing or superseding an item. Add a blocker and an unblocking condition when work cannot proceed.
 
 ## Open work
+
+### NIDO-020 — Quiet firmware updates and retained startup image
+
+- **Origin / state:** user request; implemented / unreleased.
+- **Reason:** retain the daily view during firmware download/install and startup instead of showing an update modal or empty summary.
+- **Implementation:** compact update/error header overlay; configured startup initializes the controller without refreshing and waits for a successful home response. Explicit voice/setup remains available. Boot validation is independent of network availability.
+- **Evidence:** native lifecycle and pixel regressions pass; see [verification](verification.md#2026-10-13--quiet-firmware-update-and-startup-nido-020). Physical behavior remains unverified.
+- **Next action:** publish and install only under a delivery request, then check retained image through restart and network failure. The current firmware's installer UI persists during the first upgrade; the new startup behavior applies immediately after that upgrade.
+- **Closure:** implementation and local validation complete; release, installation and physical observation are separate pending claims.
 
 ### NIDO-002 — Physical verification of the latest NOTE4 behavior
 
@@ -65,6 +73,8 @@ Dates below are **recording dates**, not invented dates for undated chat message
 | D-008 / 2026-10-12 | User-approved design; [design system](note4-design-system.md)                                        | Binary answers share a box with an inset separator and narrow integrated right-edge buttons around it; rows can grow independently. Preserve this agreement when proposing later layout changes.                                |
 | D-009 / 2026-10-12 | User request; NIDO-001 review session                                                                | Preserve completed work in coherent local commits, with continuity documentation separate from functional changes. A local commit does not authorize pushing, publishing, or deploying.                                         |
 | D-010 / 2026-10-13 | User request; NIDO-019 and [design system](note4-design-system.md)                                   | Multi-day titles shrink when their wrapped text does not fit. Calendar labels display their first seven Unicode characters plus three compact dots only when truncated; full configured names remain unchanged.                 |
+
+| D-011 / 2026-10-13 | User request; NIDO-020 | Preserve the physical e-paper image at configured startup until fresh data arrives; show only a compact icon during firmware installation. Confirm boot from controller initialization without depending on the network. |
 
 ## Completed results and evidence
 
