@@ -1,5 +1,6 @@
 #include "nido_screens.h"
 #include "nido_config.h"
+#include "nido_github_policy.h"
 #include "nido_portal.h"
 #include "nido_small_font.h"
 #include "nido_ui.h"
@@ -112,6 +113,15 @@ int main(int argc,char** argv) {
     if(argc>1)Save(std::string(argv[1])+"/daily-modal-maintenance.pgm",canvas);
     std::strcpy(card.title,"Vincular con Nido");std::strcpy(card.body,"Código: 123456\nEn Nido: Ajustes > Note4\nIP: 192.168.1.42\nVálido durante cinco minutos");DrawModal(canvas,background,card);
     if(argc>1)Save(std::string(argv[1])+"/daily-modal-pairing.pgm",canvas);
+    card={};std::strcpy(card.type,"binary");std::strcpy(card.status,"question");std::strcpy(card.title,"Nueva versión disponible");std::strcpy(card.body,"nido-ota-0.4.3\n¿Quieres instalarla ahora?");std::strcpy(card.labels[0],"Actualizar");std::strcpy(card.labels[1],"Configurar");DrawModal(canvas,background,card);
+    if(argc>1)Save(std::string(argv[1])+"/daily-modal-github-update.pgm",canvas);
+    assert(GithubNewer("nido-ota-0.10.0","nido-ota-0.9.0"));assert(!GithubNewer("nido-ota-0.4.2","nido-ota-0.4.3"));assert(!GithubNewer("nido-ota-0.4.3","nido-ota-0.4.3"));assert(!GithubNewer("nido-ota-0.4.","nido-ota-0.3"));assert(!GithubNewer("nido-ota-0.4.3-beta","nido-ota-0.3"));
+    for(const auto* url:{"http://github.com/x","https://github.com.evil/x","https://github.com@example.com/x","https://github.com:444/x","https://127.0.0.1/x"})assert(!GithubUrl(url));
+    assert(GithubUrl("https://release-assets.githubusercontent.com/asset?signature=fixture"));
+    auto* release=cJSON_Parse(R"({"tag_name":"nido-ota-0.4.3","draft":false,"prerelease":false,"assets":[{"name":"firmware.nidoota","state":"uploaded","size":2048,"browser_download_url":"https://github.com/example/nido/releases/download/nido-ota-0.4.3/firmware.nidoota"}]})");
+    GithubRelease found;assert(GithubParseRelease(release,"example/nido","nido-ota-0.4.2",found));assert(found.size==2048);assert(!GithubParseRelease(release,"different/nido","nido-ota-0.4.2",found));
+    cJSON_ReplaceItemInObject(release,"prerelease",cJSON_CreateTrue());assert(!GithubParseRelease(release,"example/nido","nido-ota-0.4.2",found));cJSON_ReplaceItemInObject(release,"prerelease",cJSON_CreateFalse());
+    auto* assets=cJSON_GetObjectItem(release,"assets");cJSON_AddItemToArray(assets,cJSON_Duplicate(cJSON_GetArrayItem(assets,0),true));assert(!GithubParseRelease(release,"example/nido","nido-ota-0.4.2",found));cJSON_Delete(release);
     home->days[1]=day;home->days[1].event_count=1;
     home->days[2]=day;std::strcpy(home->days[2].date,"2026-10-03");std::strcpy(home->days[2].label,"sábado 03 oct");home->days[2].event_count=2;home->days[2].events[0]=day.events[1];home->days[2].events[1]=day.events[2];
     home->days[3]=day;std::strcpy(home->days[3].date,"2026-10-04");std::strcpy(home->days[3].label,"domingo 04 oct");home->days[3].event_count=3;for(int i=0;i<3;++i)home->days[3].events[i]=day.events[i+3];

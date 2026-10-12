@@ -58,6 +58,8 @@ bool DeviceMaintenanceStart(DevicePower power);
 const char* DeviceMaintenanceName();
 bool DevicePairingCard(DeviceCard& card);
 bool DeviceMaintenanceTick(bool exit=false);
+bool DeviceGithubCheck(char* version,size_t capacity);
+bool DeviceGithubInstall(DevicePower power);
 void DeviceCheckUpdate(DevicePower power, DevicePaint paint);
 bool DeviceWifiConnected();
 void DeviceWarmWifi();

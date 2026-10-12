@@ -67,7 +67,7 @@ case "${1:-help}" in
     clang++ -std=c++17 -Wall -Wextra -Werror -fsanitize=address,undefined \
       "${NIDO_LINK_TARGET[@]}" -I "$NIDO_FIRMWARE/tests/ota-stubs" -I "$NIDO_FIRMWARE/main" -I "$NIDO_CRYPTO" \
       -I "$IDF_PATH/components/json/cJSON" -I "$IDF_PATH/components/mbedtls/mbedtls/include" \
-      "$NIDO_FIRMWARE/tests/test_ota.cc" "$NIDO_FIRMWARE/main/nido_ota.cc" "$NIDO_FIRMWARE/main/nido_config.cc" \
+      "$NIDO_FIRMWARE/tests/test_ota.cc" "$NIDO_FIRMWARE/main/nido_github.cc" "$NIDO_FIRMWARE/main/nido_ota.cc" "$NIDO_FIRMWARE/main/nido_config.cc" \
       "$NIDO_ROOT/.cache/note4/firmware-preview/cJSON.o" "$NIDO_CRYPTO/build/library/libmbedcrypto.a" \
       -o "$NIDO_CRYPTO/test-ota"
     "$NIDO_CRYPTO/test-ota" "$NIDO_CRYPTO"

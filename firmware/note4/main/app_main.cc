@@ -593,6 +593,22 @@ void RunMaintenance() {
     WaitHomeSync();
     const int64_t deadline=esp_timer_get_time()+20000000;
     while((g_network_active || nido::DeviceWifiWarming()) && esp_timer_get_time()<deadline){DrainNetwork();vTaskDelay(pdMS_TO_TICKS(20));}
+    if(g_network_active||nido::DeviceWifiWarming()){MaintenanceMessage("Mantenimiento no disponible","Espera a que termine la conexión y vuelve a mantener los dos botones.");g_request_maintenance=false;return;}
+    MaintenanceMessage("Buscando actualizaciones","Consultando GitHub…");
+    char release[32]={};
+    if(nido::DeviceGithubCheck(release,sizeof(release))){
+        auto card=std::make_unique<nido::DeviceCard>();std::strcpy(card->type,"binary");std::strcpy(card->status,"question");std::strcpy(card->title,"Nueva versión disponible");std::snprintf(card->body,sizeof(card->body),"%s\n¿Quieres instalarla ahora?",release);std::strcpy(card->labels[0],"Actualizar");std::strcpy(card->labels[1],"Configurar");MaintenancePaint(*card);
+        bool update=false,armed=false;const int64_t choice_deadline=esp_timer_get_time()+30000000LL;
+        while(esp_timer_get_time()<choice_deadline){
+            const bool front=FrontHeld(),lower=gpio_get_level(GPIO_NUM_18)==0,upper=gpio_get_level(GPIO_NUM_39)==0;
+            if(!front&&!lower&&!upper)armed=true;
+            if(armed&&(front||lower))break;
+            if(armed&&upper){update=true;break;}
+            nido::DeviceBootGuard();vTaskDelay(pdMS_TO_TICKS(20));
+        }
+        if(update){MaintenanceMessage("Actualizando Nido","Descargando y verificando el firmware. Mantén la alimentación conectada.");
+            if(!nido::DeviceGithubInstall(MaintenancePower)){MaintenanceMessage("Actualización no instalada","Comprueba la conexión y la batería. Abriendo configuración…");vTaskDelay(pdMS_TO_TICKS(2000));}}
+    }
     if(!nido::DeviceMaintenanceStart(MaintenancePower)){MaintenanceMessage("Mantenimiento no disponible","Espera a que termine la conexión y vuelve a mantener los dos botones.");g_request_maintenance=false;return;}
     char body[320];std::snprintf(body,sizeof(body),"red: %s\nsin contraseña\nAbre http://192.168.4.1\nFrontal + inferior: salir",nido::DeviceMaintenanceName());
     if(nido::DrawMaintenance(g_canvas,g_day_canvas,nido::DeviceMaintenanceName()))ESP_ERROR_CHECK_WITHOUT_ABORT(Paint());

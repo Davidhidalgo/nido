@@ -8,7 +8,7 @@ endif()
 configure_file("${CMAKE_CURRENT_LIST_DIR}/nido_ota_key.h.in" "${CMAKE_CURRENT_BINARY_DIR}/nido_ota_key.h" @ONLY)
 list(APPEND NIDO_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}")
 idf_component_register(
-    SRCS "app_main.cc" "nido_screens.cc" "nido_device.cc" "nido_card.cc" "nido_home.cc" "nido_small_font.cc" "nido_config.cc" "nido_ota.cc" "nido_pairing.cc"
+    SRCS "app_main.cc" "nido_screens.cc" "nido_device.cc" "nido_card.cc" "nido_home.cc" "nido_small_font.cc" "nido_config.cc" "nido_ota.cc" "nido_pairing.cc" "nido_github.cc"
     INCLUDE_DIRS ${NIDO_INCLUDE_DIRS}
     REQUIRES protobuf-c protocomm mdns nido_qr nido_gfx zectrix_board zectrix_epd esp_hw_support
              esp_driver_gpio esp_timer heap esp_wifi esp_event esp_netif

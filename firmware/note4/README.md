@@ -101,7 +101,9 @@ Restauración del firmware de fábrica, usando el mismo respaldo:
 
 Si hay varios USB Espressif, `note4-device` admite `--port PUERTO`. Para cargar el build genérico añade `--build-dir .cache/note4/generic/build`, manteniendo `--backup`. No utiliza `erase_flash` ni borra toda la flash durante el flasheo, pero sí reemplaza bootloader, tabla de particiones y aplicación. La primera migración habilita dos particiones OTA; las siguientes instalaciones de aplicación conservan configuración y bootloader.
 
-<!-- Mantenimiento y OTA de main/nido_config.cc, main/nido_device.cc, main/nido_ota.cc, partitions.csv y ../../scripts/note4-ota.mjs -->
+<!-- Mantenimiento y OTA de main/nido_config.cc, main/nido_device.cc, main/nido_ota.cc, main/nido_github.cc, main/nido_github_policy.h, partitions.csv y ../../scripts/note4-ota.mjs -->
+
+Desde `nido-ota-0.4.2`, antes de abrir el AP se consulta GitHub con la Wi-Fi guardada: una versión posterior ofrece «Actualizar» (superior) o «Configurar» (inferior/frontal, también tras treinta segundos). Consulta acotada, TLS con certificados raíz, redirecciones limitadas y paquete firmado; sin red, reloj válido o novedades se abre la configuración habitual. El repositorio público `Davidhidalgo/nido` se fija en `nido_github.cc`, sin credenciales. Las pruebas nativas cubren versiones, selección de asset, redirects, chunks y descargas corruptas con HTTP simulado y firma real. La validación física de esta ruta sigue pendiente.
 
 El nombre `Nido-XXXXXX` usa los tres últimos bytes de la MAC de fábrica en eFuse y permanece estable entre reinicios y actualizaciones. La modal de mantenimiento muestra un QR Wi-Fi con la red temporal abierta, sin contraseña; conserva el nombre y la dirección web como alternativa. El QR se genera en el dispositivo con Nayuki v1.8.0 (MIT), con módulos enteros de tres píxeles y margen blanco de cuatro módulos.
 

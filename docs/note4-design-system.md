@@ -151,3 +151,5 @@ Frontal + lateral inferior mantenidos simultáneamente cinco segundos reservan l
 Propuesta QR: modal de 352 × 218 centrada; QR Wi-Fi a la izquierda con módulos de tres píxeles y cuatro módulos de margen blanco, red sin contraseña y dirección alternativa a la derecha. El renderer nativo genera la propuesta con credenciales ficticias; pendiente de aprobación visual y prueba de escaneo en pantalla física.
 
 Vinculación por código: después de guardar la Wi-Fi, usar la modal de texto existente con «Vincular con Nido», seis dígitos, acceso a los ajustes, IP alternativa y caducidad de cinco minutos. `daily-modal-pairing.pgm` reproduce esta pantalla a 400 × 300 con datos ficticios; la prueba física sigue siendo independiente del renderizado.
+
+Actualización desde GitHub: al entrar en mantenimiento, mostrar progreso breve de consulta. Si hay versión posterior, reutilizar la modal binaria con «Nueva versión disponible», versión y «Actualizar / Configurar». Superior acepta; inferior, frontal o treinta segundos continúan a configuración. `daily-modal-github-update.pgm` reproduce la pantalla a 400 × 300; la prueba física es independiente del renderizado.

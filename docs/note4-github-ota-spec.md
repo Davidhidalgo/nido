@@ -1,6 +1,6 @@
 # Spec: OTA directa desde GitHub al entrar en mantenimiento
 
-Estado: diseño acordado, pendiente de implementación en firmware. La release `nido-ota-0.4.1` permite probar la descarga desde GitHub mediante el plugin y la OTA existente; todavía no consulta GitHub desde el dispositivo.
+Estado: implementado en firmware desde `nido-ota-0.4.2`, con pruebas nativas y compilación ESP-IDF. La verificación física de descarga e instalación sigue pendiente. La release `nido-ota-0.4.1` solo admite el recorrido mediante el plugin.
 
 ## Repositorio y artefacto
 
@@ -20,7 +20,7 @@ La pantalla debe usar el renderer de 400 × 300, modal y reglas de `note4-design
 
 ## Descarga e instalación
 
-Al aceptar, fijar el ID de release y asset y la versión mostrada, para que una nueva publicación no cambie el destino a mitad del proceso. Descargar directamente por HTTPS desde GitHub, con redirecciones limitadas a sus hosts de assets, tamaño máximo y timeout de inactividad. No seguir URLs arbitrarias ni desactivar la validación TLS. Resolver el reloj necesario para validar certificados en dispositivos sin hora válida; si no puede establecerse, continuar a configuración sin instalar.
+Al aceptar, conservar la URL del asset bajo el tag, su tamaño y la versión mostrada, para que una nueva publicación no cambie el destino a mitad del proceso. Descargar directamente por HTTPS desde GitHub, con redirecciones limitadas a sus hosts de assets, tamaño máximo, cinco segundos por operación HTTP y tres minutos para la transferencia completa. No seguir URLs arbitrarias ni desactivar la validación TLS. Usar el reloj del RTC o sincronizado con Nido. Si no tiene una fecha válida, continuar a configuración sin instalar; no se omite la validación temporal de TLS ni se incorpora un servicio horario nuevo.
 
 Reutilizar el lector `.nidoota`, `OtaWriter`, clave pública y comprobaciones existentes: modelo NOTE4 monocromo, configuración compatible, firma, longitud, hash, descriptor y energía suficiente. Exigir batería válida de al menos 40 % o alimentación externa sin fallo. Escribir solo la aplicación inactiva, conservando NVS, Wi-Fi, vinculación, bootloader y particiones. Reiniciar solo tras la verificación completa.
 
@@ -28,9 +28,9 @@ El nuevo arranque confirma la aplicación después de inicializar configuración
 
 ## Convivencia con el plugin
 
-Se mantienen la subida local y las órdenes OTA del plugin. La instalación directa debe comprobar que no hay otra instalación activa. Persistir origen y versión objetivo para reconciliar tras reinicio, y comunicar la nueva versión al puente en la siguiente conexión. Una operación del plugin incierta no se resuelve suponiendo que la instalación directa la completó: debe aplicarse el contrato de observación y reconciliación existente.
+Se mantienen la subida local y las órdenes OTA del plugin. La instalación directa debe comprobar que no hay otra instalación activa. Persistir la versión objetivo con identificador de trabajo del plugin vacío para distinguir el origen directo tras reinicio, y comunicar la nueva versión al puente en la siguiente conexión. Una operación del plugin incierta no se resuelve suponiendo que la instalación directa la completó: debe aplicarse el contrato de observación y reconciliación existente.
 
-La configuración `note4Maintenance.github.repository` solo afecta al plugin. La implementación futura del firmware necesitará una fuente explícita del repositorio público, con valor genérico configurable; no debe inferirlo de datos familiares ni aceptar repositorios suministrados por contenido del modelo.
+La configuración `note4Maintenance.github.repository` solo afecta al plugin. El firmware fija explícitamente `Davidhidalgo/nido` en `nido_github.cc`; cambiarlo requiere otra compilación. No lo infiere de datos familiares ni acepta repositorios suministrados por contenido del modelo.
 
 ## Publicación y aceptación
 

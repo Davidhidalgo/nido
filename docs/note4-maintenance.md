@@ -132,11 +132,11 @@ Para repositorios privados, añadir `tokenEnv: "NIDO_FIRMWARE_GITHUB_TOKEN"` al 
 
 Referencias del contrato HTTP: [última release](https://docs.github.com/en/rest/releases/releases#get-the-latest-release) y [descarga de assets](https://docs.github.com/en/rest/releases/assets#get-a-release-asset). Las pruebas usan respuestas ficticias y claves temporales; la primera descarga real queda pendiente de disponer de repositorio y release.
 
-### Pendiente: aviso en la pantalla antes de mantenimiento
+### Actualización directa desde el NOTE4
 
-El [spec de OTA directa desde GitHub](note4-github-ota-spec.md) recoge el diseño acordado y las comprobaciones necesarias.
+Desde `nido-ota-0.4.2`, frontal + inferior cinco segundos y soltar consulta la última release pública de `Davidhidalgo/nido` usando la Wi-Fi guardada. Si encuentra una versión posterior, ofrece «Actualizar» (lateral superior) y «Configurar» (inferior). El frontal o treinta segundos sin elegir abren la configuración. Sin novedades, red o reloj válido, se muestra el QR habitual. No necesita que el plugin descargue el archivo.
 
-La consulta automática al mantener frontal + inferior y el diálogo «Actualizar / Configurar» en el NOTE4 siguen pendientes. Esta integración resuelve la descarga desde el plugin. El futuro flujo del dispositivo debe conservar aceptación física, consulta acotada, comprobación de versión y firma, batería, rollback y entrada normal al mantenimiento si no hay red o no se desea actualizar. Para repositorios privados se mantendrán las credenciales de GitHub en el servidor.
+La descarga valida TLS, redirecciones, tamaño y paquete firmado antes de activar la aplicación inactiva. Conserva Wi-Fi y vinculación. El repositorio está fijado al compilar, sin token de GitHub; los ajustes GitHub del plugin son independientes. La prueba física de este nuevo recorrido sigue pendiente. [Contrato y límites](note4-github-ota-spec.md).
 
 ## Verificación reproducible
 

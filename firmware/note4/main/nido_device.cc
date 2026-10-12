@@ -30,6 +30,7 @@
 #include "nido_maintenance_page.h"
 #include "nido_portal.h"
 #include "nido_pairing.h"
+#include "nido_github.h"
 #include "esp_http_server.h"
 #include "esp_app_desc.h"
 #include "esp_mac.h"
@@ -366,12 +367,12 @@ void InitWifi() {
 struct WifiScope {
     bool acquired = false;
     int64_t retain_us=5000000;
-    bool Connect(bool interactive=false) {
+    bool Connect(bool interactive=false,bool setup=false) {
         retain_us=interactive ? kWifiWarmUs : 5000000;
         const int64_t began=esp_timer_get_time();
         std::lock_guard<std::mutex> lock(g_wifi_mutex);
         if(!acquired){++g_wifi_users;acquired=true;}
-        LoadRuntime();if(!g_config.configured() || g_maintenance)return false;
+        LoadRuntime();if((setup ? g_config.ssid.empty() : !g_config.configured()) || g_maintenance)return false;
         InitWifi();
         g_wifi_until=std::max(g_wifi_until,esp_timer_get_time()+retain_us);
         if(g_wifi_started && (xEventGroupGetBits(g_wifi_events)&kConnected)) {
@@ -549,6 +550,21 @@ bool DeviceHome(HomeSnapshot& snapshot,const char* anchor,bool dismiss) {
     if(valid){timeval now{static_cast<time_t>(snapshot.server_time),0};settimeofday(&now,nullptr);}
     return valid;
 }
+namespace { GithubRelease g_github_release; }
+bool DeviceGithubCheck(char* version,size_t capacity){
+    g_github_release={};const int64_t deadline=esp_timer_get_time()+20000000LL;
+    WifiScope wifi;if(!wifi.Connect(true,true))return false;
+    if(!GithubLatest(DeviceVersion(),g_github_release,deadline))return false;
+    std::snprintf(version,capacity,"%s",g_github_release.version.c_str());return true;
+}
+bool DeviceGithubInstall(DevicePower power){
+    if(!power||!power()||!GithubNewer(g_github_release.version,DeviceVersion()))return false;
+    WifiScope wifi;if(!wifi.Connect(true,true)||!power())return false;
+    const auto old_job=SavedString("ota_job"),old_version=SavedString("ota_version");
+    if(!SaveJob("",g_github_release.version.c_str()))return false;
+    if(!GithubInstall(g_github_release)){SaveJob(old_job.c_str(),old_version.c_str());return false;}
+    esp_restart();return true;
+}
 void DeviceCheckUpdate(DevicePower power,DevicePaint paint) {
     WifiScope wifi;if(!wifi.Connect())return;
     char path[256];const std::string job=SavedString("ota_job"),expected_version=SavedString("ota_version");std::snprintf(path,sizeof(path),"/v1/maintenance/check?version=%s&boot=%s&job=%s",DeviceVersion(),job==g_boot_job ? FirmwareBootState(expected_version.c_str()) : "valid",job.c_str());
@@ -635,6 +651,8 @@ bool DeviceConfigured(){return false;}
 const char* DeviceVersion(){return "local";}
 void DeviceConfirmFirmware(){ConfirmFirmware();}
 void DeviceBootGuard(){FirmwareBootGuard();}
+bool DeviceGithubCheck(char*,size_t){return false;}
+bool DeviceGithubInstall(DevicePower){return false;}
 bool DeviceMaintenanceStart(DevicePower){return false;}
 const char* DeviceMaintenanceName(){return "";}
 bool DevicePairingCard(DeviceCard&){return false;}

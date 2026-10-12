@@ -241,3 +241,9 @@ Este recorrido sustituye el cliente Desktop propio del asistente descrito en la 
 - Navegador: vista de Google comprobada en un OpenClaw temporal. La fixture `test:oauth:browser` confirmó que el formulario llega mediante POST con el origen correcto a otro puerto local, incluso con la política de referrer del host. También se comprobó el resultado visible en una ventana nueva. Se cerraron las pestañas y los servidores de prueba.
 
 No se ha desplegado el servicio público ni creado el cliente OAuth Web. No se ha usado una cuenta real ni modificado la instalación familiar. La distribución sigue indicando que Google no está disponible hasta configurar el servicio, y la demo funciona. Antes del lanzamiento faltan el consentimiento real, la renovación y revocación con Google, y la comprobación del estado de publicación/verificación de la app. [Activación del servicio](google-oauth-service.md).
+
+## OTA directa desde GitHub (2026-10-12)
+
+Implementado el cliente HTTPS en firmware, con consulta al entrar en mantenimiento y elección física antes de instalar. Las pruebas nativas con ASan/UBSan, HTTP simulado y RSA real comprueban comparación de versiones, metadatos y assets, TLS configurado, redirecciones acotadas, lectura por bloques, descargas incompletas y paquetes corruptos. Renderizada la modal ficticia a 400 × 300 y compilada la aplicación genérica con ESP-IDF.
+
+La `nido-ota-0.4.2` se cargó por USB con respaldo validado; escritura y verificación de hashes completadas, reinicio por watchdog solicitado. Esto no confirma todavía el arranque físico ni la descarga e instalación de una release en el dispositivo. Se prepara `nido-ota-0.4.3` como destino de la prueba OTA, con el mismo código y versión superior.
