@@ -16,7 +16,7 @@ La versión probada del host es OpenClaw 2026.9.8. La interfaz requiere activar 
 
 <!-- Package filename matching integrations/nido-family/package.json name and version -->
 
-With the reviewed package on the OpenClaw server:
+Download [plugin 0.1.2 from GitHub Releases](https://github.com/Davidhidalgo/nido/releases/tag/nido-plugin-0.1.2), verify its checksum, and install it on the OpenClaw server:
 
 ```sh
 openclaw plugins install ./openclaw-plugin-nido-family-0.1.2.tgz
@@ -24,7 +24,7 @@ openclaw plugins install ./openclaw-plugin-nido-family-0.1.2.tgz
 
 Abre el dashboard como administrador, activa **Settings → Labs → Custom plugin UI**, entra en **Nido** y sigue el asistente. Para Google, autoriza la app de Nido; no necesitas crear un proyecto de Google Cloud ni cargar un JSON. Revisa antes de guardar; puedes empezar con calendarios ficticios. [Guía de instalación](docs/getting-started.md).
 
-El paquete todavía se genera desde el repositorio; no se presupone publicado en npm o ClawHub. [Empaquetado y capacidades](docs/plugin-install.md). El [perfil aislado](docs/standalone-install.md) queda disponible para desarrollo o un despliegue independiente.
+The [plugin guide](docs/plugin-install.md) describes packaging from source and required capabilities. The [isolated profile](docs/standalone-install.md) remains available for development or a separate deployment.
 
 <!-- Lectura de documentos configurada en scripts/prepare-local.mjs, integrations/nido-family/src/setup.ts y agents/nido/AGENTS.md -->
 

@@ -294,3 +294,16 @@ Prepared the local plugin 0.1.2 archive containing NIDO-001; firmware versions a
 - `pnpm run lint`, `pnpm run format:check`, changed-document link/anchor checks, and `git diff --check`: passed. The preceding 253-test run remains the NIDO-001 code evidence; it was not rerun for this metadata/documentation and installation-fixture change.
 
 The archive is an ignored local output. No push, public release, real-host installation, or hardware operation was performed. The next delivery decision is recorded in [next steps](next-steps.md).
+
+## 2026-10-13 — Plugin 0.1.2 publication and live activation (NIDO-017)
+
+The user authorized publication followed by updating the existing installation. `release:check` passed before pushing the three prepared commits to `main`. [Release `nido-plugin-0.1.2`](https://github.com/Davidhidalgo/nido/releases/tag/nido-plugin-0.1.2) targets `4719a5ce1604855184a2cac34c716f396608da60` and contains the previously tested archive and `SHA256SUMS-plugin-0.1.2`. GitHub reports the archive digest `sha256:c752af2aed28b22481fde325650325234a90714dc8d97befecc223e4953a17c4`, matching the local artifact. The initial creation request rejected an abbreviated commit identifier; a read confirmed no release existed before creation with the full identifier. The release was explicitly created with `--latest=false`, and GitHub's latest endpoint still returned `nido-ota-0.4.8` afterward. Publishing a plugin-only release as latest would disrupt the current firmware lookup, which expects a firmware bundle.
+
+The authorized host uses an explicit source-linked plugin path. All compiled runtime files, templates, and the manifest were compared byte-for-byte with the published package; version metadata was 0.1.2. That installation topology was preserved. A private configuration copy, an online SQLite backup, the preceding package, and diagnostic outputs were retained in the external development archive described in [data layout](data-layout.md). No installation-specific paths, addresses, identifiers, credentials, or calendar content are included in this log.
+
+- `plugins reload nido-family --wait --json` succeeded and confirmed a new runtime generation with `restartRequired: false`. The Gateway did not need restarting.
+- With no active NOTE4 voice turn, the existing bridge service received a controlled termination and restarted under its service manager. Its subsequent calendar projection completed successfully, evidenced by a new context timestamp after restart.
+- The active configuration remained byte-for-byte identical to the pre-update backup. A read-only administrative meal-settings call returned the configured values. Gateway health returned success, and the NOTE4 endpoint responded over TLS using its existing certificate while rejecting an unauthenticated request with 401.
+- Verification made no calendar writes, changed no authentication or meal settings, and ran no model conversation. The bridge performed its normal authorized calendar reads. No hardware operation or firmware update was performed.
+
+Publication and live backend activation are complete. These checks do not establish the physically displayed menu, installed firmware version, or the success of a spoken interaction; those remain separate observations under NIDO-002. The current resume point is in [next steps](next-steps.md).

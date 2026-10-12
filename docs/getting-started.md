@@ -8,7 +8,7 @@ Necesitas OpenClaw **2026.9.8 o posterior** y su modelo configurado. Esta revisi
 
 <!-- Package filename matching integrations/nido-family/package.json name and version -->
 
-Obtain `openclaw-plugin-nido-family-0.1.2.tgz` from a Nido distribution you have reviewed. This version is prepared locally; these instructions do not imply that it has been published to npm, ClawHub, or GitHub Releases. To build from source, follow the packaging section of [the plugin guide](plugin-install.md).
+Download `openclaw-plugin-nido-family-0.1.2.tgz` and its checksum file from the [plugin 0.1.2 release](https://github.com/Davidhidalgo/nido/releases/tag/nido-plugin-0.1.2). Verify the archive against the published SHA-256 before installing. To build from source, follow the packaging section of [the plugin guide](plugin-install.md).
 
 En el equipo o servidor donde corre tu OpenClaw:
 
