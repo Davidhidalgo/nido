@@ -48,7 +48,7 @@ Prueba «Organiza las cenas de esta semana», rectifica un plato y crea una cita
 
 Las preferencias se guardan en SQLite, por persona o para la familia, y pueden tener caducidad. El agente puede consultarlas, corregirlas y eliminarlas. No edites `agents/*/AGENTS.md` con datos personales: son plantillas públicas. La demo y Google tienen bases distintas; las preferencias de prueba no pasan automáticamente al entorno real.
 
-Los miembros, zona horaria y horarios se configuran con `pnpm run setup` o en `.local/family.json`, seguido de `pnpm run prepare:local`. Son configuración operativa; mencionarlos en una conversación no cambia por sí solo la validación de horarios del plugin. El generador incorpora esos valores a las instrucciones privadas. Las preferencias alimentarias se introducen conversando con el agente.
+Members, time zone, and meal times are configured with `pnpm run setup` or in `.local/family.json`, followed by `pnpm run prepare:local`. These are operational settings; mentioning them in a conversation does not change the administrative configuration. The generator includes them in private instructions. Meal times guide scheduling and NOTE4 dimming; existing menu events are classified by chronological order within each local day, as described in [architecture](architecture.md). Food preferences are managed through conversations with the agent.
 
 ## 4. Conectar Google Calendar
 

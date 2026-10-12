@@ -188,3 +188,7 @@ La pantalla de mantenimiento muestra la versión completa de la aplicación en e
 ## Firmware update availability
 
 Firmware 0.4.8 adds a compact downward arrow and tray at the right of the daily header, separate from data refresh, error, and low-battery icons. It appears only when the bridge reports `updateAvailable`. The device reports its installed version on home refreshes. The bridge checks the public firmware repository in the background at most once per hour per process, including after failures, and reuses the last successful result. An initial check becomes visible on a subsequent data refresh. A failed GitHub request must not block calendar refreshes or create a calendar error. The icon is advisory: maintenance still checks, asks for confirmation, and verifies the signed firmware before installing.
+
+## Menu ordering
+
+Within each local day of the menu calendar, the first event by start instant is lunch and the second is dinner. A single event is lunch, including an all-day event. Changing configured meal times does not change this classification. Cancelled events are ignored. More than two events, equal start instants, or a pair containing an all-day event require clarification; the previous successful snapshot is retained on a conflict. Compare actual instants across daylight-saving changes, rather than clock labels. Configured times still control creation defaults and the meal dimming threshold.

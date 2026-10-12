@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import {
-  menuSlot,
+  orderedMenuDay,
   defaultMealTimes,
   NidoError,
   type CalendarEvent,
@@ -124,18 +124,9 @@ export async function note4Home(
       events: [],
       more: 0,
     };
-    for (const meal of meals) {
-      if (meal.status === "cancelled" || dateOf(meal.start) !== date) continue;
-      let slot: string;
-      try {
-        slot = menuSlot(meal, config.timeZone, config.mealTimes);
-      } catch {
-        continue;
-      }
-      const key = slot.endsWith(":comida") ? "lunch" : "dinner";
-      if (day[key]) throw new NidoError("CONFLICT", "Hay más de un plato para el mismo horario.");
-      day[key] = clip(meal.summary.replace(/^(Comida|Cena)\s*·\s*/iu, ""), 160);
-    }
+    const planned = orderedMenuDay(meals, date, config.timeZone);
+    day.lunch = clip((planned[0]?.summary ?? "").replace(/^(Comida|Cena)\s*·\s*/iu, ""), 160);
+    day.dinner = clip((planned[1]?.summary ?? "").replace(/^(Comida|Cena)\s*·\s*/iu, ""), 160);
     day.lunchPast =
       dimAfter !== null &&
       date === today &&

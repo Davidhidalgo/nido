@@ -18,9 +18,9 @@ Desde la raíz de Nido: `pnpm run build`, `pnpm run test` y `pnpm run typecheck`
 
 Los límites de consentimiento verbal y los pasos para conectar cuentas se describen en [la guía de inicio](../../docs/getting-started.md).
 
-<!-- Identificación de comidas y cenas por menuSlot en src/core.ts -->
+<!-- Menu event ordering from orderedMenuDay in src/core.ts and src/note4-home.ts -->
 
-Los eventos nuevos llevan solo el nombre del plato. Se identifica comida o cena por `mealTimes` y la zona familiar, manteniendo la detección de duplicados. Si falta `mealTimes`, se mantienen los valores de compatibilidad 13:00 y 19:00. Los títulos antiguos con prefijo siguen siendo compatibles.
+Within each local date of the menu calendar, events are ordered by start instant: the first is lunch, the second dinner. A single event is lunch, including an all-day event. Cancelled events are ignored; more than two events, equal start instants, or a pair containing an all-day event produce a conflict instead of a guessed assignment. Configured meal times guide new timed events and screen dimming, not classification of existing meals. Titles contain only the dish; legacy prefixes are stripped for display without determining the slot. Edits preserve existing times unless explicitly changed, and writes reject a resulting day that exceeds two meals or cannot be ordered. Deletion remains available to resolve conflicts, with the current ETag and existing permission checks.
 
 ## Tarjetas NOTE4
 
@@ -70,7 +70,7 @@ La variante `cancel?continue=1` conserva la conversación para una aclaración. 
 
 The plugin's **Comidas y pantalla** panel lets administrators edit lunch and dinner times and choose when today's planned meals dim on NOTE4. `mealDimmingMinutes` defaults to 120, accepts whole minutes from 0 to 1440, and uses `null` to disable dimming. Zero dims a meal from its configured start time. Only the outline and shadow change; the text stays readable. Firmware with meal dimming support (0.4.6 or later) uses the existing flags, so no new firmware is required.
 
-`nido.meals.get` and `nido.meals.save` require `operator.admin`. Saves check the configuration version inside the host transaction and preserve calendar permissions, meal duration, agent workspaces, and unrelated settings. A lost acknowledgement must be reconciled by reading the settings before retrying. The bridge reloads these values on its next home synchronization. Nido agents receive the current schedule at prompt construction, overriding older schedule data embedded in workspaces. Existing calendar events are not rescheduled; unlabelled meals at an old time may need a `Comida ·` or `Cena ·` prefix to remain identifiable. Legacy `family.json` is synchronized with a backup; a synchronization failure is reported separately from the successful plugin save.
+`nido.meals.get` and `nido.meals.save` require `operator.admin`. Saves check the configuration version inside the host transaction and preserve calendar permissions, meal duration, agent workspaces, and unrelated settings. A lost acknowledgement must be reconciled by reading the settings before retrying. The bridge reloads these values on its next home synchronization. Nido agents receive the current schedule at prompt construction, overriding older schedule data embedded in workspaces. Existing calendar events are not rescheduled and remain identifiable by their order within the day. Legacy `family.json` is synchronized with a backup; a synchronization failure is reported separately from the successful plugin save.
 
 ## Firmware update indicator
 

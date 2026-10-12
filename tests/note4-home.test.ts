@@ -246,12 +246,13 @@ it.each([
   },
 );
 
-it("does not wrap a late dinner's grace period into the same day or dim unplanned meals", async () => {
+it("does not wrap a late dinner's grace period into the same day", async () => {
   const settings = {
     ...config,
     mealTimes: { lunch: "14:00", dinner: "23:00", durationMinutes: 60 },
   };
   const meals = [
+    timed("l", "2026-10-02T14:00:00+02:00", "2026-10-02T15:00:00+02:00", "Arroz"),
     timed("d", "2026-10-02T23:00:00+02:00", "2026-10-03T00:00:00+02:00", "Cena · Sopa"),
   ];
   const home = await note4Home(
@@ -261,7 +262,7 @@ it("does not wrap a late dinner's grace period into the same day or dim unplanne
     new Date("2026-10-02T21:59:00Z"),
   );
   expect(home.days.find((d) => d.date === home.today)).toMatchObject({
-    lunchPast: false,
+    lunchPast: true,
     dinnerPast: false,
   });
 });
@@ -282,4 +283,107 @@ it.each([
     new Date(stamp),
   );
   expect(home.days.find((d) => d.date === home.today)?.lunchPast).toBe(expected);
+});
+
+it("orders each menu day independently of configured times, labels and API order", async () => {
+  const meals = [
+    timed("late", "2026-10-02T21:00:00+02:00", "2026-10-02T22:00:00+02:00", "Comida · Tortilla"),
+    timed("early", "2026-10-02T14:00:00+02:00", "2026-10-02T15:00:00+02:00", "Cena · Lentejas"),
+    {
+      ...timed("cancelled", "2026-10-02T10:00:00+02:00", "2026-10-02T11:00:00+02:00"),
+      status: "cancelled",
+    },
+    timed("single", "2026-10-03T21:00:00+02:00", "2026-10-03T22:00:00+02:00", "Sopa"),
+  ];
+  const home = await note4Home(
+    port(meals, []),
+    { ...config, mealTimes: { lunch: "14:30", dinner: "21:30", durationMinutes: 60 } },
+    undefined,
+    new Date("2026-10-02T12:00Z"),
+  );
+  expect(home.days.find((d) => d.date === "2026-10-02")).toMatchObject({
+    lunch: "Lentejas",
+    dinner: "Tortilla",
+  });
+  expect(home.days.find((d) => d.date === "2026-10-03")).toMatchObject({
+    lunch: "Sopa",
+    dinner: "",
+  });
+  meals.push(timed("third", "2026-10-02T18:00:00+02:00", "2026-10-02T19:00:00+02:00"));
+  await expect(
+    note4Home(port(meals, []), config, undefined, new Date("2026-10-02T12:00Z")),
+  ).rejects.toMatchObject({ code: "CONFLICT" });
+});
+
+it.each([
+  ["Europe/Madrid", "2026-10-01T22:30:00Z", "2026-10-02T19:00:00Z"],
+  ["America/Bogota", "2026-10-02T17:00:00Z", "2026-10-03T02:00:00Z"],
+])(
+  "groups menu events by their start date in %s, not the UTC or event zone",
+  async (timeZone, early, late) => {
+    const event = (id: string, start: string) => ({
+      ...timed(id, start, new Date(Date.parse(start) + 3600000).toISOString()),
+      start: { dateTime: start, timeZone: "UTC" },
+    });
+    const home = await note4Home(
+      port([event("Late", late), event("Early", early)], []),
+      { ...config, timeZone },
+      "2026-10-02",
+      new Date("2026-10-02T12:00:00Z"),
+    );
+    expect(home.days.find((d) => d.date === "2026-10-02")).toMatchObject({
+      lunch: "Early",
+      dinner: "Late",
+    });
+    expect(home.days.filter((d) => d.lunch || d.dinner)).toHaveLength(1);
+  },
+);
+
+it("orders distinct instants during the repeated autumn hour", async () => {
+  const home = await note4Home(
+    port(
+      [
+        timed("Second", "2026-10-25T02:15:00+01:00", "2026-10-25T03:15:00+01:00"),
+        timed("First", "2026-10-25T02:45:00+02:00", "2026-10-25T02:45:00+01:00"),
+      ],
+      [],
+    ),
+    config,
+    "2026-10-25",
+    new Date("2026-10-25T12:00:00Z"),
+  );
+  expect(home.days.find((d) => d.date === "2026-10-25")).toMatchObject({
+    lunch: "First",
+    dinner: "Second",
+  });
+});
+
+it.each([
+  [
+    timed("One", "2026-10-02T14:00:00+02:00", "2026-10-02T15:00:00+02:00"),
+    timed("Two", "2026-10-02T12:00:00Z", "2026-10-02T13:00:00Z"),
+  ],
+  [
+    all("All day", "2026-10-02", "2026-10-03"),
+    timed("Timed", "2026-10-02T21:00:00+02:00", "2026-10-02T22:00:00+02:00"),
+  ],
+])("rejects a pair whose order is ambiguous: %j", async (first, second) => {
+  await expect(
+    note4Home(port([first, second], []), config, undefined, new Date("2026-10-02T12:00:00Z")),
+  ).rejects.toMatchObject({ code: "CONFLICT" });
+});
+
+it("keeps a single legacy all-day meal and leaves the unplanned dinner undimmed", async () => {
+  const home = await note4Home(
+    port([all("Cena · Sopa", "2026-10-02", "2026-10-03")], []),
+    config,
+    undefined,
+    new Date("2026-10-02T21:00:00Z"),
+  );
+  expect(home.days.find((d) => d.date === "2026-10-02")).toMatchObject({
+    lunch: "Sopa",
+    dinner: "",
+    lunchPast: true,
+    dinnerPast: false,
+  });
 });

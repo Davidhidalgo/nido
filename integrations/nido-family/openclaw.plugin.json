@@ -329,7 +329,7 @@
     "onStartup": true
   },
   "controlUi": {
-    "entry": "dist/control-ui/ea654b81afb2522339569aea377d6b7a53fd83b9c527b8f0a0cec2557aa3bc26/index.js"
+    "entry": "dist/control-ui/5cd19ed6108c8148fec225c4884ac93a837a140df7901b4731c9e36fdc691216/index.js"
   },
   "contracts": {
     "tools": [

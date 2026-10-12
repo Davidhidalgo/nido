@@ -19,7 +19,7 @@ const family = {
   timeZone: "America/Bogota",
   mealTimes: { lunch: "12:30", dinner: "20:15", durationMinutes: 45 },
 };
-test("custom meal times use the family zone and minutes", () => {
+test("the legacy schedule helper uses the family zone and minutes", () => {
   validateFamily(family);
   const meal = {
     summary: "Sopa",
@@ -45,7 +45,7 @@ test("invalid schedules and zones fail before configuration is written", () => {
   ).toThrow("Horarios");
 });
 
-test("custom schedules preserve duplicate protection and NOTE4 display", async () => {
+test("menu capacity and NOTE4 assignment use local dates across UTC midnight", async () => {
   const dir = mkdtempSync(join(tmpdir(), "nido-meals-"));
   const store = new Store(join(dir, "data.sqlite"));
   const calendar = new DemoCalendar(store);
@@ -60,15 +60,44 @@ test("custom schedules preserve duplicate protection and NOTE4 display", async (
   try {
     await service.create(actor, "menu", meal);
     await expect(
-      service.create({ ...actor, toolCallId: "second" }, "menu", meal),
+      service.create({ ...actor, toolCallId: "duplicate" }, "menu", {
+        ...meal,
+        start: { dateTime: "2026-10-01T20:15:00-05:00", timeZone: family.timeZone },
+      }),
     ).rejects.toMatchObject({ code: "OCCUPIED" });
+    const earlier = {
+      summary: "Arroz",
+      start: { dateTime: "2026-10-01T17:30:00Z", timeZone: family.timeZone },
+      end: { dateTime: "2026-10-01T18:15:00Z", timeZone: family.timeZone },
+    };
+    await service.create({ ...actor, toolCallId: "earlier" }, "menu", earlier);
+    await expect(
+      service.create({ ...actor, toolCallId: "third" }, "menu", {
+        ...meal,
+        start: { dateTime: "2026-10-02T03:00:00Z", timeZone: family.timeZone },
+        end: { dateTime: "2026-10-02T04:00:00Z", timeZone: family.timeZone },
+      }),
+    ).rejects.toMatchObject({ code: "OCCUPIED" });
+    await service.create({ ...actor, toolCallId: "next-day" }, "menu", {
+      ...meal,
+      summary: "Pasta",
+      start: { dateTime: "2026-10-02T17:30:00Z", timeZone: family.timeZone },
+      end: { dateTime: "2026-10-02T18:15:00Z", timeZone: family.timeZone },
+    });
     const snapshot = await note4Home(
       calendar,
       config,
       "2026-10-01",
       new Date("2026-10-01T18:00:00Z"),
     );
-    expect(snapshot.days.find((day) => day.date === "2026-10-01")?.dinner).toBe("Sopa");
+    expect(snapshot.days.find((day) => day.date === "2026-10-01")).toMatchObject({
+      lunch: "Arroz",
+      dinner: "Sopa",
+    });
+    expect(snapshot.days.find((day) => day.date === "2026-10-02")).toMatchObject({
+      lunch: "Pasta",
+      dinner: "",
+    });
   } finally {
     store.close();
     rmSync(dir, { recursive: true, force: true });

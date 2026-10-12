@@ -174,6 +174,34 @@ function mutable(event: CalendarEvent) {
     fail("UNSUPPORTED", "Solo se modifican eventos ordinarios.");
   if (event.status === "cancelled") fail("NOT_FOUND", "El evento está eliminado.");
 }
+export function menuDate(event: EventInput, timeZone: string): string {
+  return "date" in event.start
+    ? event.start.date
+    : new Intl.DateTimeFormat("en-CA", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date(event.start.dateTime));
+}
+export function orderedMenuDay(events: CalendarEvent[], date: string, timeZone: string) {
+  const key = (event: CalendarEvent) =>
+    "date" in event.start ? Number.NEGATIVE_INFINITY : Date.parse(event.start.dateTime);
+  const meals = events
+    .filter((event) => event.status !== "cancelled" && menuDate(event, timeZone) === date)
+    .sort((a, b) => key(a) - key(b) || a.id.localeCompare(b.id));
+  if (
+    meals.length > 2 ||
+    (meals.length === 2 &&
+      (meals.some((event) => "date" in event.start) || key(meals[0]) === key(meals[1])))
+  )
+    fail(
+      "CONFLICT",
+      "El menú admite como máximo dos eventos por día. Si hay dos, ambos necesitan horas de inicio distintas para ordenar comida y cena.",
+    );
+  return meals;
+}
+/** @deprecated Legacy schedule/title lookup; runtime meal assignment uses orderedMenuDay. */
 export function menuSlot(event: EventInput, timeZone: string, mealTimes = defaultMealTimes) {
   const clock =
     "dateTime" in event.start
@@ -400,32 +428,28 @@ export class FamilyService {
     return result;
   }
   private async vacant(calendar: string, input: EventInput, excluding?: string) {
-    const slot = menuSlot(input, this.config.timeZone, this.config.mealTimes);
-    const date = slot.split(":")[0]!;
+    const date = menuDate(input, this.config.timeZone);
     const start = new Date(Date.parse(date) - 86400000).toISOString();
     const end = new Date(Date.parse(date) + 2 * 86400000).toISOString();
     const events = await this.calendar.list(calendar, start, end);
-    if (
-      events.some(
-        (e) =>
-          e.id !== excluding &&
-          e.status !== "cancelled" &&
-          (() => {
-            try {
-              return menuSlot(e, this.config.timeZone, this.config.mealTimes) === slot;
-            } catch (error) {
-              if (error instanceof NidoError && error.code === "INVALID_MENU") return false;
-              throw error;
-            }
-          })(),
-      )
-    )
+    try {
+      orderedMenuDay(
+        [
+          ...events.filter((event) => event.id !== excluding),
+          { ...input, id: excluding ?? "proposed", etag: "proposed" },
+        ],
+        date,
+        this.config.timeZone,
+      );
+    } catch (error) {
+      if (!(error instanceof NidoError) || error.code !== "CONFLICT") throw error;
       fail(
         "OCCUPIED",
-        "Ese hueco del menú está ocupado. Lee el evento y rectifícalo explícitamente.",
+        "Ese día ya tiene dos platos o faltan horas de inicio distintas para ordenarlos. Lee el menú antes de rectificarlo.",
       );
-    return slot;
+    }
   }
+
   async create(actor: Actor, alias: CalendarAlias | undefined, input: EventInput) {
     const calendar = this.calendarId(actor, alias, true);
     validateEvent(input);
@@ -448,7 +472,6 @@ export class FamilyService {
       const after = { ...before, ...patch };
       validateEvent(after);
       if (calendar === this.config.menuCalendarId) {
-        menuSlot(before, this.config.timeZone, this.config.mealTimes);
         await this.vacant(calendar, after, id);
       }
       return this.calendar.update(calendar, id, etag, patch);
@@ -460,8 +483,6 @@ export class FamilyService {
       const before = await this.calendar.get(calendar, id);
       mutable(before);
       if (before.etag !== etag) fail("CONFLICT", "El evento cambió. Vuelve a leerlo.");
-      if (calendar === this.config.menuCalendarId)
-        menuSlot(before, this.config.timeZone, this.config.mealTimes);
       await this.calendar.delete(calendar, id, etag);
       return { deleted: true, id };
     });

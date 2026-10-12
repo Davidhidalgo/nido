@@ -60,7 +60,7 @@ Las operaciones conservan identidad para deduplicar reintentos. Las ediciones us
 
 `agent-context.json` contiene referencias completas de una ventana reciente de calendarios. No es una copia de seguridad ni una réplica histórica completa. La proyección enviada a la pantalla elimina IDs y notas, limita texto y número de eventos; no debe utilizarse para reconstruir una edición. Un fallo conserva el contexto anterior y lo marca como obsoleto.
 
-Los horarios de menú y la zona horaria pertenecen a cada instalación. `mealTimes` se utiliza al identificar huecos y proyectar el menú en NOTE4. Una preferencia conversacional no cambia automáticamente la configuración técnica de horarios.
+Meal times and the time zone belong to each installation. Active menu events are grouped by their start date in the family time zone and ordered by start instant: the first is lunch and the second dinner, regardless of titles or configured times. A single event is lunch, including an all-day event. More than two events, equal start instants, or a pair containing an all-day event require clarification; NOTE4 refresh fails without replacing the last successful snapshot. Writes validate the resulting day before saving, while deletion can remove a conflicting event using its current ETag. `mealTimes` supplies scheduling defaults and NOTE4 dimming thresholds; changing it neither moves existing events nor changes their classification. Conversational preferences do not automatically change these administrative settings.
 
 ## NOTE4
 

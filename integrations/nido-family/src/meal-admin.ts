@@ -118,7 +118,7 @@ export function registerMealAdmin(api: OpenClawPluginApi) {
     if (!config?.mode) return;
     return {
       prependSystemContext:
-        "Horarios actuales de Nido (sustituyen horarios anteriores del perfil; no cambian permisos ni mueven eventos existentes): " +
+        "Regla actual del menú (sustituye la clasificación anterior por horarios o prefijos): ignora cancelados y agrupa por fecha de inicio en la zona familiar; ordena cada día por instante de inicio: primero comida, segundo cena. Uno solo es comida, incluso de todo el día. Más de dos, inicios iguales o dos eventos entre los que alguno es de todo el día requieren aclaración. Los horarios habituales se usan para crear nuevos eventos con hora y atenuar la pantalla, no para clasificar los existentes; comprueba que los nuevos eventos respetan el orden comida-cena. No cambian permisos ni se mueven eventos existentes. Configuración actual: " +
         JSON.stringify({
           timeZone: config.timeZone,
           mealTimes: config.mealTimes ?? defaultMealTimes,

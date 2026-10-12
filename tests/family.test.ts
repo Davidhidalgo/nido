@@ -217,7 +217,7 @@ describe("preferencias y fechas", () => {
     expect(() => validateEvent({ ...dinner, end: dinner.start })).toThrow();
     expect(() => validateEvent(dinner)).not.toThrow();
   });
-  it("asigna el hueco por fecha local de Madrid, no UTC", () => {
+  it("el helper de horarios heredado usa la fecha local de Madrid, no UTC", () => {
     expect(
       menuSlot(
         { ...dinner, start: { dateTime: "2026-09-18T23:30:00Z", timeZone: "Europe/Madrid" } },
@@ -311,7 +311,7 @@ it("acepta platos sin prefijo y conserva la protección de huecos al rectificarl
   expect(updated.start).toEqual(plain.start);
 });
 
-it("clasifica títulos sin prefijo por hora local también en invierno", () => {
+it("el helper de horarios heredado reconoce la hora local también en invierno", () => {
   expect(
     menuSlot(
       {
@@ -531,4 +531,114 @@ it("el plugin rechaza predeterminados desconocidos y permisos de coordinadores",
         new FamilyService({ ...service.config, calendarAccess: access as any }, store, calendar),
     ).toThrow("Permisos");
   }
+});
+
+it("edits old meal times on a full day after settings change and rejects a third event without moving meals", async () => {
+  const first = await service.create(menu, "menu", {
+    ...dinner,
+    summary: "Lentejas",
+    start: { dateTime: "2026-09-19T14:00:00+02:00", timeZone: "Europe/Madrid" },
+    end: { dateTime: "2026-09-19T15:00:00+02:00", timeZone: "Europe/Madrid" },
+  });
+  const second = await service.create({ ...menu, toolCallId: "second-meal" }, "menu", {
+    ...dinner,
+    start: { dateTime: "2026-09-19T21:00:00+02:00", timeZone: "Europe/Madrid" },
+    end: { dateTime: "2026-09-19T22:00:00+02:00", timeZone: "Europe/Madrid" },
+  });
+  service.config.mealTimes = { lunch: "14:30", dinner: "21:30", durationMinutes: 60 };
+  const edited = await service.update(
+    { ...menu, toolCallId: "old-time-edit" },
+    "menu",
+    first.id,
+    first.etag,
+    { summary: "Arroz" },
+  );
+  expect(edited.start).toEqual(first.start);
+  expect(edited.end).toEqual(first.end);
+  await expect(
+    service.create({ ...menu, toolCallId: "third-meal" }, "menu", {
+      ...dinner,
+      start: { dateTime: "2026-09-19T18:00:00+02:00", timeZone: "Europe/Madrid" },
+      end: { dateTime: "2026-09-19T19:00:00+02:00", timeZone: "Europe/Madrid" },
+    }),
+  ).rejects.toMatchObject({ code: "OCCUPIED" });
+  await expect(
+    service.delete({ ...menu, toolCallId: "delete-old" }, "menu", edited.id, edited.etag),
+  ).resolves.toMatchObject({ deleted: true });
+  expect(await calendar.list("meals", "2026-09-18", "2026-09-21")).toEqual([second]);
+});
+
+it("rejects moves onto occupied instants or full local days without changing either event", async () => {
+  const meal = (day: string, hour: string): EventInput => ({
+    summary: "Plato",
+    start: { dateTime: `${day}T${hour}:00:00+02:00`, timeZone: "Europe/Madrid" },
+    end: { dateTime: `${day}T${hour}:30:00+02:00`, timeZone: "Europe/Madrid" },
+  });
+  const first = await service.create(menu, "menu", meal("2026-09-19", "13"));
+  const second = await service.create(
+    { ...menu, toolCallId: "second" },
+    "menu",
+    meal("2026-09-19", "21"),
+  );
+  const another = await service.create(
+    { ...menu, toolCallId: "another" },
+    "menu",
+    meal("2026-09-20", "13"),
+  );
+  for (const [event, patch] of [
+    [second, meal("2026-09-19", "13")],
+    [another, meal("2026-09-19", "18")],
+  ] as const) {
+    await expect(
+      service.update(
+        { ...menu, toolCallId: `move-${event.id}` },
+        "menu",
+        event.id,
+        event.etag,
+        patch,
+      ),
+    ).rejects.toMatchObject({ code: "OCCUPIED" });
+    expect(await calendar.get("meals", event.id)).toEqual(event);
+  }
+  expect(await calendar.get("meals", first.id)).toEqual(first);
+});
+
+it("ignores cancelled meals and allows deletion to resolve an externally introduced conflict", async () => {
+  const first = await service.create(menu, "menu", dinner);
+  const cancelled = { ...first, id: "cancelled", status: "cancelled" };
+  store.db
+    .prepare("INSERT INTO demo_events VALUES (?,?,?)")
+    .run("meals", cancelled.id, JSON.stringify(cancelled));
+  const edited = await service.update(
+    { ...menu, toolCallId: "edit" },
+    "menu",
+    first.id,
+    first.etag,
+    { summary: "Sopa" },
+  );
+  const external = await calendar.create("meals", { ...dinner, id: "external" });
+  await expect(
+    service.update({ ...menu, toolCallId: "ambiguous" }, "menu", edited.id, edited.etag, {
+      summary: "Arroz",
+    }),
+  ).rejects.toMatchObject({ code: "OCCUPIED" });
+  await expect(
+    service.delete({ ...menu, toolCallId: "remove-stale" }, "menu", external.id, "stale"),
+  ).rejects.toMatchObject({ code: "CONFLICT" });
+  await expect(
+    service.delete({ ...menu, toolCallId: "remove" }, "menu", external.id, external.etag),
+  ).resolves.toMatchObject({ deleted: true });
+  expect(await calendar.get("meals", edited.id)).toEqual(edited);
+});
+
+it("rejects adding a timed meal beside an all-day meal without guessing its position", async () => {
+  await service.create(menu, "menu", dinner);
+  await expect(
+    service.create({ ...menu, toolCallId: "timed" }, "menu", {
+      summary: "Sopa",
+      start: { dateTime: "2026-09-19T21:00:00+02:00", timeZone: "Europe/Madrid" },
+      end: { dateTime: "2026-09-19T22:00:00+02:00", timeZone: "Europe/Madrid" },
+    }),
+  ).rejects.toMatchObject({ code: "OCCUPIED" });
+  expect(await calendar.list("meals", "2026-09-18", "2026-09-21")).toHaveLength(1);
 });
