@@ -40,7 +40,7 @@ function legacyCard(card: Note4Card): Note4Card {
 export function deviceHandler(
   device: Note4Device,
   token: string | ((authorization: unknown) => boolean),
-  home?: (date?: string) => Promise<unknown>,
+  home?: (date?: string, installedVersion?: string) => Promise<unknown>,
 ) {
   const expected = Buffer.from(typeof token === "string" ? `Bearer ${token}` : "");
   return async (request: IncomingMessage, response: ServerResponse) => {
@@ -80,7 +80,14 @@ export function deviceHandler(
           url.searchParams.getAll("date").length > 1
         )
           throw new NidoError("INVALID_INPUT", "Consulta inválida.");
-        send(200, await home(url.searchParams.get("date") ?? undefined));
+        const reported = request.headers["x-nido-firmware-version"];
+        const version =
+          typeof reported === "string" &&
+          /^nido-ota-\d+\.\d+\.\d+$/.test(reported) &&
+          reported.length <= 31
+            ? reported
+            : undefined;
+        send(200, await home(url.searchParams.get("date") ?? undefined, version));
         return;
       }
       if (request.method === "POST" && url.pathname === "/v1/session/dismiss") {

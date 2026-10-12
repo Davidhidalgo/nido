@@ -93,6 +93,8 @@ int main(int argc,char** argv) {
     assert(!ParseHome(root,*home));assert(std::memcmp(&saved,home.get(),sizeof(saved))==0);
     cJSON_ReplaceItemInObject(first_day,"lunchPast",cJSON_CreateBool(true));assert(ParseHome(root,*home));assert(home->days[0].lunch_past);
     cJSON_DeleteItemFromObject(first_day,"lunchPast");assert(ParseHome(root,*home));
+    assert(!home->update_available);cJSON_AddBoolToObject(root,"updateAvailable",true);assert(ParseHome(root,*home));assert(home->update_available);
+    cJSON_DeleteItemFromObject(root,"updateAvailable");assert(ParseHome(root,*home));assert(!home->update_available);
     cJSON_ReplaceItemInObject(span,"calendarLabel",cJSON_CreateString(std::string(65,'x').c_str()));assert(!ParseHome(root,*home));assert(std::memcmp(&saved,home.get(),sizeof(saved))==0);
     cJSON_ReplaceItemInObject(span,"calendarLabel",cJSON_CreateString("Casa"));
     cJSON_ReplaceItemInObject(cJSON_GetArrayItem(days,0),"date",cJSON_CreateString("2026-02-30"));assert(!ParseHome(root,*home));assert(std::memcmp(&saved,home.get(),sizeof(saved))==0);cJSON_Delete(root);
@@ -114,6 +116,9 @@ int main(int argc,char** argv) {
     day.dinner_past=true;DrawHome(canvas,&day,home->today);if(argc>1)Save(std::string(argv[1])+"/daily-meals-past.pgm",canvas);
     DrawHome(canvas,&day,"2026-10-03");day.lunch_past=day.dinner_past=false;DrawHome(before_meals,&day,"2026-10-03");
     assert(std::memcmp(canvas.data(),before_meals.data(),15000)==0);
+    home->update_available=true;DrawHome(canvas,&day,home->today,false,false,false,false,home.get());
+    if(argc>1)Save(std::string(argv[1])+"/daily-update-available.pgm",canvas);
+    home->update_available=false;
     DrawHome(background,&day,home->today);DeviceCard card={};std::strcpy(card.status,"question");std::strcpy(card.type,"binary");std::strcpy(card.title,"¿Cambio la cena?");std::strcpy(card.body,"Puedo sustituir la tortilla por sopa de verduras.");std::strcpy(card.labels[0],"Sí, cambiarla");std::strcpy(card.labels[1],"No, conservarla");
     DrawModal(canvas,background,card);
     assert(std::memcmp(canvas.data(),background.data(),34*50)!=0); // The veil includes the header.

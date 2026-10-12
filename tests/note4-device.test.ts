@@ -353,9 +353,9 @@ it("authenticates the read-only home endpoint and validates its query before rea
   device = make();
   let reads = 0;
   server = createServer(
-    deviceHandler(device, "test-secret", async (date) => {
+    deviceHandler(device, "test-secret", async (date, installedVersion) => {
       reads++;
-      return { date };
+      return { date, installedVersion };
     }),
   );
   await new Promise<void>((resolve) => server!.listen(0, "127.0.0.1", resolve));
@@ -377,6 +377,14 @@ it("authenticates the read-only home endpoint and validates its query before rea
   expect(result.status).toBe(200);
   expect(await result.json()).toEqual({ date: "2026-10-02" });
   expect(reads).toBe(1);
+  const versioned = await fetch(url, {
+    headers: { Authorization: "Bearer test-secret", "X-Nido-Firmware-Version": "nido-ota-0.4.8" },
+  });
+  expect(await versioned.json()).toEqual({ installedVersion: "nido-ota-0.4.8" });
+  const invalid = await fetch(url, {
+    headers: { Authorization: "Bearer test-secret", "X-Nido-Firmware-Version": "untrusted" },
+  });
+  expect(await invalid.json()).toEqual({});
 });
 
 it("stops a working turn once and keeps it cancelled when the worker exits", async () => {

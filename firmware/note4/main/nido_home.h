@@ -10,7 +10,7 @@ struct HomeDay {
     HomeEvent events[6]; int event_count; int more;
 };
 struct HomeSnapshot {
-    char today[11]; int64_t server_time; bool demo; int day_count;
+    char today[11]; int64_t server_time; bool demo; int day_count; bool update_available;
     HomeDay days[kHomeDays];
 };
 bool ValidHomeDate(const char* date);

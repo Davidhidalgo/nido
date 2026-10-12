@@ -341,6 +341,15 @@ try {
   });
   try {
     await client.request("nido.note4.status", {});
+    for (const method of ["nido.meals.get", "nido.meals.save"]) {
+      let denied = false;
+      try {
+        await client.request(method, {});
+      } catch (error) {
+        denied = /scope|permission|forbidden/i.test(String(error));
+      }
+      if (!denied) throw new Error(`Meal settings admin scope not enforced: ${method}`);
+    }
     for (const method of [
       "pair",
       "pairCode",
@@ -364,6 +373,37 @@ try {
   }
   console.log(
     "NOTE4 administrativo verificado: vinculación, firma, órdenes, reconciliación y scopes del Gateway.",
+  );
+  const mealBefore = rpc("nido.meals.get");
+  const mealsSaved = rpc("nido.meals.save", {
+    ...mealBefore,
+    lunch: "14:15",
+    dinner: "21:30",
+    mealDimmingMinutes: 45,
+  });
+  if (!mealsSaved.saved || mealsSaved.warning)
+    throw new Error("Meal settings were not saved cleanly.");
+  await stop();
+  await startGateway();
+  const mealAfter = rpc("nido.meals.get");
+  if (
+    mealAfter.lunch !== "14:15" ||
+    mealAfter.dinner !== "21:30" ||
+    mealAfter.mealDimmingMinutes !== 45
+  )
+    throw new Error("Meal settings did not survive a Gateway restart.");
+  const syncedMeals = JSON.parse(await readFile(join(root, ".local/family.json"), "utf8"));
+  if (syncedMeals.mealTimes.lunch !== "14:15" || syncedMeals.mealDimmingMinutes !== 45)
+    throw new Error("Legacy meal settings were not synchronized.");
+  let mealConflict = false;
+  try {
+    rpc("nido.meals.save", mealBefore);
+  } catch {
+    mealConflict = true;
+  }
+  if (!mealConflict) throw new Error("Stale meal settings were accepted.");
+  console.log(
+    "Meal settings verified: persistence, synchronization, conflicts and administrator scopes.",
   );
   const stale = await post();
   if (stale.status !== 409) throw new Error(`Conflicto de versión no detectado: ${stale.status}`);

@@ -223,7 +223,7 @@ void DrawHome(HearthCanvas& canvas,const HomeDay* day,const char* today,bool upd
         }
         std::snprintf(header,sizeof(header),"%s%s%s",demo ? "demo · " : "",relative,day->label);
     }
-    Wrap(canvas,10,header,1,1,16,328);
+    Wrap(canvas,10,header,1,1,16,snapshot && snapshot->update_available ? 296 : 328);
     if(updating) {
         canvas.Line(357,12,364,12);canvas.Line(364,12,367,15);canvas.Line(367,15,367,18);
         canvas.Line(367,18,369,16);canvas.Line(367,18,364,17);
@@ -232,6 +232,11 @@ void DrawHome(HearthCanvas& canvas,const HomeDay* day,const char* today,bool upd
     } else if(failed) {
         canvas.Line(362,11,368,23);canvas.Line(368,23,356,23);canvas.Line(356,23,362,11);
         canvas.Line(362,15,362,18);canvas.Pixel(362,21,true);
+    }
+    if(snapshot && snapshot->update_available) {
+        // Firmware download available: downward arrow into a tray, separate from data refresh.
+        canvas.Line(325,11,325,19);canvas.Line(322,16,325,19);canvas.Line(328,16,325,19);
+        canvas.Line(320,21,320,24);canvas.HLine(320,24,11);canvas.Line(330,21,330,24);
     }
     if(low_battery) {canvas.Rect(379,14,12,7);canvas.FillRect(391,16,2,3,true);canvas.FillRect(381,16,2,3,true);}
     const auto box=[&](int x,int y,int w,int h) {

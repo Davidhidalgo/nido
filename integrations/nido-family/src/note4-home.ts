@@ -101,6 +101,7 @@ export async function note4Home(
   };
   const nowMinutes = minutes(clock.format(now));
   const mealTimes = config.mealTimes ?? defaultMealTimes;
+  const dimAfter = config.mealDimmingMinutes === undefined ? 120 : config.mealDimmingMinutes;
   const label = new Intl.DateTimeFormat("es-ES", {
     timeZone: "UTC",
     weekday: "long",
@@ -135,9 +136,16 @@ export async function note4Home(
       if (day[key]) throw new NidoError("CONFLICT", "Hay más de un plato para el mismo horario.");
       day[key] = clip(meal.summary.replace(/^(Comida|Cena)\s*·\s*/iu, ""), 160);
     }
-    day.lunchPast = date === today && !!day.lunch && nowMinutes >= minutes(mealTimes.lunch) + 120;
+    day.lunchPast =
+      dimAfter !== null &&
+      date === today &&
+      !!day.lunch &&
+      nowMinutes >= minutes(mealTimes.lunch) + dimAfter;
     day.dinnerPast =
-      date === today && !!day.dinner && nowMinutes >= minutes(mealTimes.dinner) + 120;
+      dimAfter !== null &&
+      date === today &&
+      !!day.dinner &&
+      nowMinutes >= minutes(mealTimes.dinner) + dimAfter;
     const visible = events
       .filter((event) => {
         if (event.status === "cancelled") return false;

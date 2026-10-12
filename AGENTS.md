@@ -4,6 +4,8 @@ Nido es un asistente familiar sobre OpenClaw. Esta guía es para desarrollar el 
 
 ## Contexto suficiente dentro del repo
 
+English is the official language for project documentation, including specifications, development guides, and GitHub release titles and notes. Write new documentation in English; translate existing documentation when it is explicitly requested or directly revised. Nido's user-facing interface and agent interactions remain in Spanish for now. Configurable product languages are planned for later; do not change runtime text as part of documentation translation.
+
 Lee [arquitectura](docs/architecture.md), [desarrollo y diagnóstico](docs/development.md) y [organización de datos](docs/data-layout.md). [Inicio](docs/getting-started.md) describe la instalación; [decisiones](docs/implementation-notes.md) explica el diseño; [verificación](docs/verification.md) es un registro histórico, no el estado actual de un dispositivo.
 
 El código, las pruebas y estas guías deben permitir trabajar sin acceder a la familia real ni a conversaciones de Codex anteriores. Cuando descubras algo útil, consérvalo como una prueba con datos ficticios o una explicación genérica en el repo. No dependas de scripts privados sueltos para verificar el proyecto.

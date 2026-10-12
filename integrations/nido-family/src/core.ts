@@ -62,6 +62,7 @@ export type FamilyConfig = {
   writesEnabled: boolean;
   timeZone: string;
   mealTimes?: MealTimes;
+  mealDimmingMinutes?: number | null;
 };
 export function calendarReference(config: FamilyConfig, id: string): CalendarAlias {
   return id === config.menuCalendarId

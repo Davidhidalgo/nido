@@ -1,3 +1,4 @@
+import { mealSettingsScript } from "./meal-settings.js";
 import { note4SettingsScript } from "./note4-settings.js";
 import { calendarPanel } from "./calendar-panel.js";
 /** Static module only. Account data travels through authenticated native Gateway RPC. */
@@ -44,6 +45,7 @@ class NidoCalendarSettings extends HTMLElement {
   }
   bind(){const host=this,root=this.shadowRoot,document={getElementById:id=>root.getElementById(id),createElement:tag=>root.ownerDocument.createElement(tag)};
 ${script}
+${mealSettingsScript()}
 ${note4SettingsScript()}
   }
 }

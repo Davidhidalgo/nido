@@ -265,3 +265,21 @@ it("does not wrap a late dinner's grace period into the same day or dim unplanne
     dinnerPast: false,
   });
 });
+
+it.each([
+  [30, "2026-10-02T11:29:59Z", false],
+  [30, "2026-10-02T11:30:00Z", true],
+  [0, "2026-10-02T11:00:00Z", true],
+  [null, "2026-10-02T19:00:00Z", false],
+])("uses configurable meal dimming (%s minutes) at %s", async (delay, stamp, expected) => {
+  const meals = [
+    timed("l", "2026-10-02T13:00:00+02:00", "2026-10-02T14:00:00+02:00", "Comida · Sopa"),
+  ];
+  const home = await note4Home(
+    port(meals, []),
+    { ...config, mealDimmingMinutes: delay },
+    undefined,
+    new Date(stamp),
+  );
+  expect(home.days.find((d) => d.date === home.today)?.lunchPast).toBe(expected);
+});

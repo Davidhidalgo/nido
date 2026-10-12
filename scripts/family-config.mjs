@@ -33,6 +33,14 @@ export function validateFamily(family) {
       family.gatewayPort === 18791)
   )
     throw new Error("Puerto del Gateway inválido o reservado para NOTE4.");
+  if (
+    family.mealDimmingMinutes !== undefined &&
+    family.mealDimmingMinutes !== null &&
+    (!Number.isInteger(family.mealDimmingMinutes) ||
+      family.mealDimmingMinutes < 0 ||
+      family.mealDimmingMinutes > 1440)
+  )
+    throw new Error("Atenuación de comidas inválida.");
   const times = family.mealTimes;
   if (
     times &&

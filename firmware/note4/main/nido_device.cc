@@ -433,6 +433,7 @@ struct HttpSession {
             std::string auth = std::string("Bearer ") + g_config.token.c_str();
             esp_http_client_set_header(client,"Authorization",auth.c_str());
             esp_http_client_set_header(client,"X-Nido-Card-Version","2");
+            esp_http_client_set_header(client,"X-Nido-Firmware-Version",DeviceVersion());
         }
     }
     ~HttpSession() { if (client) esp_http_client_cleanup(client); }

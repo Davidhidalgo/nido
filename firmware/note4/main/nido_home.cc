@@ -29,6 +29,7 @@ bool ParseHome(const cJSON* json,HomeSnapshot& snapshot) {
     if(!String(json,"today",next->today,sizeof(next->today))||!ValidHomeDate(next->today)||
        !cJSON_IsNumber(stamp)||!std::isfinite(stamp->valuedouble)||stamp->valuedouble<1700000000||stamp->valuedouble>2200000000||
        !cJSON_IsBool(demo)||!cJSON_IsArray(days)||cJSON_GetArraySize(days)!=kHomeDays)return false;
+    next->update_available=cJSON_IsTrue(cJSON_GetObjectItemCaseSensitive(json,"updateAvailable"));
     next->server_time=static_cast<int64_t>(stamp->valuedouble);next->demo=cJSON_IsTrue(demo);next->day_count=kHomeDays;
     for(int i=0;i<kHomeDays;++i) {
         auto& day=next->days[i];const auto* item=cJSON_GetArrayItem(days,i);

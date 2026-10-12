@@ -2,7 +2,7 @@
   "id": "nido-family",
   "name": "Nido Family",
   "description": "Calendarios y preferencias familiares con permisos por agente.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "configSchema": {
     "type": "object",
     "properties": {
@@ -287,6 +287,18 @@
         "type": "string",
         "minLength": 1
       },
+      "mealDimmingMinutes": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1440
+          }
+        ]
+      },
       "mealTimes": {
         "type": "object",
         "required": [
@@ -317,7 +329,7 @@
     "onStartup": true
   },
   "controlUi": {
-    "entry": "dist/control-ui/4be4d59ea646ecbabdda74c91a6c0ff089a499d6e32f418bef1641e5d5361c4a/index.js"
+    "entry": "dist/control-ui/ea654b81afb2522339569aea377d6b7a53fd83b9c527b8f0a0cec2557aa3bc26/index.js"
   },
   "contracts": {
     "tools": [

@@ -169,3 +169,9 @@ La red y el polling se ejecutan en una tarea separada con 16 KB de pila; las tar
 <!-- Latency measurements from main/nido_device.cc and ../../integrations/nido-family/src/note4-device.ts -->
 
 Las trazas `latency` del firmware separan conexión Wi-Fi y petición HTTP (incluye TLS y transferencia). El bridge escribe eventos JSON `note4_latency` con identificador de turno y milisegundos de transcripción, agente y total; no incluye audio ni transcripción. Estas medidas no afirman todavía una reducción observada en hardware. El transporte sigue enviando un WAV completo y OpenClaw sigue transcribiendo después de recibirlo: el streaming de audio/transcripción es la siguiente fase, no está activo.
+
+## Update availability indicator
+
+<!-- Installed-version header in main/nido_device.cc, optional updateAvailable parsing in main/nido_home.cc and download icon in main/nido_screens.cc -->
+
+Version 0.4.8 reports its installed firmware version during home refreshes and shows a small download arrow when the bridge returns `updateAvailable`. Missing status from an older bridge means no icon. This does not start a download or installation; use the existing maintenance flow to review and accept an update.

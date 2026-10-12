@@ -213,6 +213,8 @@ const refreshHome = async (date) => {
     "calendarAccess",
     "calendarNames",
     "calendarShortNames",
+    "mealTimes",
+    "mealDimmingMinutes",
     "writesEnabled",
   ])
     family[key] = current[key];
@@ -234,6 +236,9 @@ const maintenance = family.note4Maintenance
     )
   : null;
 const maintenanceRoute = maintenance ? maintenanceHandler(maintenance) : null;
+const { Note4UpdateStatus } =
+  await import("../integrations/nido-family/dist/note4-update-status.js");
+const firmwareUpdates = new Note4UpdateStatus();
 const voiceRoute = deviceHandler(
   device,
   (header) => {
@@ -244,7 +249,10 @@ const voiceRoute = deviceHandler(
       expected = Buffer.from(`Bearer ${deviceConfig.token}`);
     return supplied.length === expected.length && timingSafeEqual(supplied, expected);
   },
-  (date) => refreshHome(date),
+  async (date, installedVersion) => ({
+    ...(await refreshHome(date)),
+    ...firmwareUpdates.status(installedVersion),
+  }),
 );
 const server = createServer(
   {

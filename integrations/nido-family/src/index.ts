@@ -14,6 +14,7 @@ import { registerNote4Admin } from "./note4-admin.js";
 import { registerCalendarAdmin } from "./calendar-admin.js";
 import { registerSessionPolicy } from "./session-policy.js";
 import { SetupMetadata } from "./setup.js";
+import { registerMealAdmin } from "./meal-admin.js";
 import { registerSetupAdmin } from "./setup-admin.js";
 import { GoogleCalendar } from "./google.js";
 import { note4Definition, showNote4 } from "./note4.js";
@@ -80,6 +81,9 @@ const Config = Type.Object(
     ),
     writesEnabled: Type.Boolean(),
     timeZone: Type.String({ minLength: 1 }),
+    mealDimmingMinutes: Type.Optional(
+      Type.Union([Type.Null(), Type.Integer({ minimum: 0, maximum: 1440 })]),
+    ),
     mealTimes: Type.Optional(
       Type.Object(
         {
@@ -328,6 +332,7 @@ const registerTools = plugin.register;
 plugin.register = (api) => {
   registerTools(api);
   registerSetupAdmin(api);
+  registerMealAdmin(api);
   registerSessionPolicy(api);
   registerCalendarAdmin(api);
   registerNote4Admin(api);
