@@ -4,12 +4,12 @@ Last reconciled: **2026-10-13**. This is the single register of current prioriti
 
 ## Resume point
 
-- **Current scope:** NIDO-004 local HTTPS access is implemented and activated after the user resumed the request. The named URL now serves the Control UI directly and supports an authenticated WebSocket connection.
-- **Last repository result:** `911de6c` records the completed plugin 0.1.2 release and activation. The follow-up proxy commit adds a reusable local adapter, fictitious tests, and deployment guidance; it does not change the plugin package or firmware.
-- **Delivery state:** the existing local redirect service now loads the adapter, and the persistent Portless alias targets it. Only the exact HTTPS browser origin was added to Gateway configuration; authentication and plugin settings are unchanged. No Gateway or NOTE4 restart was needed.
-- **Next concrete action:** open the named HTTPS URL and sign in with the existing Gateway secret if this browser origin has no saved session. Safari rendering and a separate authenticated WebSocket handshake passed; a model conversation was not run.
-- **Outstanding evidence:** NIDO-002 physical device appearance/version remains separate and unverified.
-- **Priority:** NIDO-004 is complete for local access. No new implementation task is selected; other entries are not an automatic implementation queue.
+- **Current scope:** NIDO-019 publication and authorized OTA delivery are complete. The paired NOTE4 now reports firmware 0.4.9 and a valid boot; its update operation is complete.
+- **Last repository result:** `3445332` contains the firmware correction, native regressions, and design/README documentation and has been pushed. The earlier uncommitted calendar-save correction is preserved separately.
+- **Delivery state:** [firmware 0.4.9](https://github.com/Davidhidalgo/nido/releases/tag/nido-ota-0.4.9) is the latest stable release. Its signed package was verified after public download, imported through the authenticated Nido API, and installed by one OTA request. A fresh authenticated read confirmed the same device, version 0.4.9, valid boot, and completed operation.
+- **Next concrete action:** inspect the long multi-day title and seven-character calendar label on the physical NOTE4 under NIDO-002. The completed update needs no retry.
+- **Outstanding evidence:** physical legibility of the new typography and other NIDO-002 appearance checks remain unverified.
+- **Priority:** NIDO-019 delivery is complete; no additional implementation task is selected. Other entries are not an automatic implementation queue.
 
 ## Reading states and origins
 
@@ -23,8 +23,8 @@ States: `implemented / unreleased`, `needs verification`, `proposed`, `parked`, 
 
 - **Origin / state:** user-requested features; needs verification.
 - **Reason:** renders and builds do not confirm the on-device result of dimming, grouped answers, or the update indicator.
-- **Evidence / limit:** [verification entries for 0.4.6–0.4.8](verification.md), [design system](note4-design-system.md), and [firmware status tests](../tests/note4-update-status.test.ts). The user confirmed an earlier OTA installation, not the current firmware version.
-- **Next action:** when a hardware check is requested, establish the installed version and check the relevant screens. The update icon requires a later compatible release than the installed version; do not publish a dummy release merely to make it appear.
+- **Evidence / limit:** [firmware verification](verification.md), [design system](note4-design-system.md), and [firmware status tests](../tests/note4-update-status.test.ts). Fresh authenticated status after NIDO-019 establishes firmware 0.4.9, a valid boot, and completed OTA; it does not show physical typography, meal dimming, or grouped answers.
+- **Next action:** inspect the long multi-day title and abbreviated calendar label on the physical 0.4.9 screen, then the other pending appearance checks when requested. The update icon requires a later compatible release than the installed version; do not publish a dummy release merely to make it appear.
 - **Closure:** dated device observations identify the tested version and which behaviors passed or failed. Follow firmware backup/flash rules; no physical operations are implied by this register.
 
 ### NIDO-003 — Reconcile historical documentation and English migration
@@ -64,10 +64,21 @@ Dates below are **recording dates**, not invented dates for undated chat message
 | D-007 / 2026-10-12 | User requests; [maintenance guide](note4-maintenance.md)                                             | Front plus lower side button opens maintenance; an open AP with hardware-derived stable name, QR and captive portal handles Wi-Fi. Pairing by code is a separate step. Original discussion dates are not established here.      |
 | D-008 / 2026-10-12 | User-approved design; [design system](note4-design-system.md)                                        | Binary answers share a box with an inset separator and narrow integrated right-edge buttons around it; rows can grow independently. Preserve this agreement when proposing later layout changes.                                |
 | D-009 / 2026-10-12 | User request; NIDO-001 review session                                                                | Preserve completed work in coherent local commits, with continuity documentation separate from functional changes. A local commit does not authorize pushing, publishing, or deploying.                                         |
+| D-010 / 2026-10-13 | User request; NIDO-019 and [design system](note4-design-system.md)                                   | Multi-day titles shrink when their wrapped text does not fit. Calendar labels display their first seven Unicode characters plus three compact dots only when truncated; full configured names remain unchanged.                 |
 
 ## Completed results and evidence
 
 These entries close specific scopes, not all associated follow-ups. Implementation, software checks, publication, and physical observation are different claims.
+
+### NIDO-019 — Fit multi-day titles and abbreviate calendar labels
+
+- **Origin / state:** user request, including later publication and installation authorization; done for implementation, publication, and authenticated OTA delivery (2026-10-13).
+- **Reason:** multi-day cards reserved space for dates and footer but always used the large font for the selected day, clipping titles that could fit at the smaller size. Calendar labels also needed a consistent seven-character limit and three compact dots.
+- **Implementation:** [renderer](../firmware/note4/main/nido_screens.cc) measures actual wrapping before choosing the multi-day title font and abbreviates calendar names only for display. [Tiny font](../firmware/note4/main/nido_small_font.cc) draws a three-dot ellipsis with matching width. The [design system](note4-design-system.md) records the agreed rules.
+- **Evidence:** [native regressions](../firmware/note4/tests/test_home.cc) cover one through six cards, accented labels, all-day/timed and stacked footers, future-cache titles, compact dots, and bounded overflow. The new title assertion fails with the previous renderer; current native tests and generic firmware build pass. [Verification](verification.md#2026-10-13--multi-day-title-fitting-and-calendar-labels-nido-019) records scope and preview evidence.
+- **Delivery:** [release 0.4.9](https://github.com/Davidhidalgo/nido/releases/tag/nido-ota-0.4.9) targets `3445332`; a draft download and then the unauthenticated public download matched the local signed package. The normal administrative API imported the same package and queued one OTA operation. Subsequent authenticated status confirmed the same device running 0.4.9, a valid boot, and operation completion. See [delivery evidence](verification.md#2026-10-13--firmware-049-publication-and-ota-delivery-nido-019).
+- **Remaining / next action:** physical typography inspection belongs to NIDO-002; do not reinstall this completed update merely to obtain visual evidence.
+- **Closure:** code, publication, and installation are complete. Physical legibility remains a separate claim. The initial design task used fictitious data; authorized delivery evidence is retained privately, with only generic conclusions here.
 
 ### NIDO-004 — Recognizable local URL for OpenClaw
 

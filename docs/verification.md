@@ -320,3 +320,28 @@ The maintained [adapter](../scripts/local-control-proxy.mjs) validates local soc
 - No model conversation or calendar mutation was performed. Browser storage is per origin, so an existing direct-localhost session does not imply a signed-in session at the new origin.
 
 See [the deployment guide](local-control-url.md) for generic setup, trust boundaries, and recovery, and [next steps](next-steps.md) for the current handoff.
+
+## 2026-10-13 — Multi-day title fitting and calendar labels (NIDO-019)
+
+The user requested smaller text when long multi-day titles do not fit and calendar names limited to seven characters with compact dots. The previous renderer reproduced the title clipping with a fictitious six-card view. The updated renderer measures the title between date and footer, uses the smaller font only when necessary, and abbreviates calendar names before laying out the footer. Settings and cached names are preserved. The tiny ellipsis now consists of three separate pixels, one blank pixel apart, with a six-pixel advance.
+
+- `pnpm run test:note4-firmware` passed: native rendering/parsing under AddressSanitizer and UndefinedBehaviorSanitizer, nine device-protection tests, real Mbed TLS OTA checks, and six SRP client cases. The existing unused-parameter warning in the SDK SRP test shim remains unrelated.
+- The new native title assertion fails when compiled against the previous renderer and passes with the correction. Pixel comparisons cover fitting versus shrinking, one through six cards, accented labels at the seven-character boundary, all-day/timed and stacked footers, future-cache titles, maximum-length overflow bounds, and the exact three-dot glyph. Drawing leaves the complete calendar name unchanged.
+- `pnpm run note4:firmware build-generic` passed for ESP32-S3 with no installation configuration or private signing key. Its first sandboxed attempt was blocked by a macOS `sysctl` permission error; the approved build outside that restriction succeeded. This was a compilation only.
+- Inspected fictitious 400 × 300 previews from `.cache/note4/firmware-preview/`, including `daily-multiday-long-1.pgm`, `daily-multiday-long-6.pgm`, and `daily-multiday-long-future.pgm`. “Vacaciones en familia” stays large in a wide card and fits in two smaller rows in a narrow card. The abbreviated calendar and standard time share the footer without touching; future borders/shadows remain subdued and text stays crisp.
+- The directly revised design rules and README rendering descriptions are in English; visible product strings remain Spanish. No family data or private installation state was read, no service was restarted, and no firmware was installed or published.
+- Formatting passed for the standard 117-file scope and the firmware README; all 83 local links/anchors in the changed documents and `git diff --check` passed.
+
+This establishes local rendering and build behavior, not physical e-paper legibility. See [NIDO-019](next-steps.md#nido-019--fit-multi-day-titles-and-abbreviate-calendar-labels) for the current handoff.
+
+## 2026-10-13 — Firmware 0.4.9 publication and OTA delivery (NIDO-019)
+
+After the user authorized publication and installation, firmware commit `3445332e7c97ff3b8e2685d98734b1ee6cd24855` was pushed with the repository's public noreply author/committer identity. The unrelated calendar-save correction remains outside this delivery.
+
+- All 259 plugin tests, typecheck, lint, formatting, build, and the 239-file release/privacy scan passed. The immediately preceding native firmware suite remains the rendering/OTA evidence; the source was unchanged. The generic ESP32-S3 firmware was rebuilt with descriptor version `nido-ota-0.4.9` and the existing public verification key.
+- The package signature, manifest, application hash/length, ESP32-S3 project/version descriptor, and embedded public key were verified. No personal home path or actual private key material was found in the application. Mbed TLS contains generic PEM delimiter strings; these alone are not embedded credentials. The private signing key remained outside the repository and was not uploaded.
+- [Release 0.4.9](https://github.com/Davidhidalgo/nido/releases/tag/nido-ota-0.4.9) was created as a draft with exactly one `.nidoota`, its signed manifest, and checksums. All three downloaded draft assets matched locally. It was then published as latest stable; an unauthenticated metadata request and public firmware download passed and matched the same SHA-256.
+- Signed bundle: **1,357,777 bytes**, SHA-256 `25eb94a65443e8cc8cf850708db8bc3c04bbf0c71c6ee189449233da0ee12007`. Application: **1,357,088 bytes**, SHA-256 `905b52d074c46f8ddb6ba6a7b16e03f88e18e3034f6157dfb5713cc4408b9e9e`.
+- Before delivery, authenticated status reported firmware 0.4.8 with a valid boot and no pending OTA operation. The existing administrative API imported the verified package; a readback confirmed the same version/hash. One update request with a persistent identifier was submitted and read back as queued. Subsequent authenticated status confirmed the same paired device reporting `nido-ota-0.4.9`, boot `valid`, and that operation in phase `complete`. A final reread confirmed those results; no retry was needed.
+
+The normal OTA path retains its power/signature checks and writes the inactive application. No USB flash, authentication change, service restart, or family-calendar mutation was performed. Installation-specific identifiers and administrative responses remain in the external private development archive. Publication and installation are confirmed; physical typography has not been observed. Follow [next steps](next-steps.md) for that separate check.
