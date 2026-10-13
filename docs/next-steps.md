@@ -4,7 +4,7 @@ Last reconciled: **2026-10-13**. This is the single register of current prioriti
 
 ## Resume point
 
-- **Current scope:** NIDO-003 English documentation pass, starting with the root README. The README translation and structural review are complete locally; broader guide translation remains open.
+- **Current scope:** NIDO-003 English documentation pass, starting with the root README. The README translation and structural review are published; a follow-up feature overview is complete locally. Broader guide translation remains open.
 - **Last delivery:** firmware 0.4.10 is published and installed, with retained startup confirmed by the user. NIDO-018 calendar-save changes remain separate and uncommitted.
 - **Next concrete action:** continue the documentation pass with `docs/getting-started.md`, preserving Spanish runtime/UI labels and checking each operational claim against the implementation.
 - **Outstanding evidence:** the compact installation indicator and deliberately failed-connectivity behavior remain NIDO-020 observations; no test-only release is needed.
@@ -38,7 +38,7 @@ States: `implemented / unreleased`, `needs verification`, `proposed`, `parked`, 
 ### NIDO-003 — Reconcile historical documentation and English migration
 
 - **Origin / state:** user-requested translation and improvement pass on 2026-10-13, starting with the root README; in progress.
-- **Completed scope:** [README](../README.md) translated into English, including symbolic comments and link labels. Installation, Google availability, NOTE4, development, private data and publication guidance are separated. Documentation links are grouped by topic; actual Spanish UI labels and the Spanish demo prompt are preserved.
+- **Completed scope:** [README](../README.md) translated into English, including symbolic comments and link labels. Installation, Google availability, NOTE4, development, private data and publication guidance are separated. Documentation links are grouped by topic; actual Spanish UI labels and the Spanish demo prompt are preserved. A follow-up opening feature list distinguishes core capabilities, optional integrations and the shared Google connection limitation.
 - **Evidence:** commands and requirements checked against `package.json`, setup/simulator sources and existing guides. Replaced the blanket claim that NOTE4 hardware operation was unverified with bounded dated evidence. Markdown formatting, local links, script references and whitespace checks passed. Documentation-only change; no runtime tests or private-installation access.
 - **Next action:** translate and review `getting-started.md`, then follow the README's linked guides in bounded passes. Existing guide content is not automatically current: check claims against source and dated verification.
 - **Closure:** the README pass is complete locally. The wider documentation migration remains open; preserve historical evidence and distinguish it from current behavior. No publication is implied by this request.

@@ -4,6 +4,21 @@ Nido is a family assistant built on OpenClaw for meal planning and shared calend
 
 Project documentation is written in English. The product interface and family-agent interactions currently use Spanish.
 
+## Features
+
+<!-- Supported capabilities from integrations/nido-family/src/core.ts, integrations/nido-family/src/setup.ts, integrations/nido-family/src/meal-settings.ts, agents/nido/AGENTS.md, firmware/note4/README.md and integrations/trmnl/README.md -->
+
+- **Conversational meal planning:** plan lunches and dinners, consult the menu, and save family food preferences for future suggestions.
+- **Shared agenda:** find appointments and create, edit or delete individual events in authorized calendars. Keep meal planning and agenda permissions separate.
+- **Multiple calendars:** choose default calendars, include additional calendars in the agenda, and configure read/write access for each specialist.
+- **PDF attachments:** ask Nido to read a document through OpenClaw's PDF tool and use its contents in a meal-planning or agenda request.
+- **Demo mode:** try the assistant with fictitious calendars, keeping demo events and preferences separate from Google data.
+- **Native setup and settings:** configure agents, model selection, time zone, meal times and calendar permissions from the OpenClaw dashboard.
+- **NOTE4 voice and e-paper interface (optional):** talk using the front button, answer on-screen questions, and browse meals and upcoming events. Configure meal dimming and install signed firmware updates.
+- **Other optional integrations:** chat through Telegram, display calendar and meal views on TRMNL, or add conversational memory with Honcho.
+
+Google Calendar support is implemented, but the shared connection service is not yet publicly configured. See [Google Calendar availability](#google-calendar-availability) before choosing that setup path.
+
 ## Install on an existing OpenClaw server
 
 <!-- Installation and setup flow from integrations/nido-family/src/setup-admin.ts, integrations/nido-family/src/control-ui.ts and docs/getting-started.md -->
