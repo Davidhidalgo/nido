@@ -6,6 +6,14 @@ Este documento es un registro histórico. Las rutas antiguas de capturas y diagn
 
 Fecha: 17 de septiembre de 2026. Equipo: macOS Apple Silicon. OpenClaw 2026.9.4, Node 24.16.0.
 
+## 2026-10-13 — Firmware 0.4.10 publication and OTA delivery (NIDO-020)
+
+- User authorized publication and installation. Release `nido-ota-0.4.10` targets `1c13151babacf6c995a684499194943acfed45e9`, including firmware change `9faa6e0`. The unrelated NIDO-018 changes remain uncommitted.
+- Signed generic ESP-IDF build and `pnpm run release:check` passed. Existing native lifecycle/pixel and sanitizer verification remains applicable; no firmware source changed during publication.
+- Draft download and unauthenticated public download matched the local signed package: 1,357,778 bytes, SHA-256 `86accae36c0168fee7188230855862ba736d5f4388aa2b7f00c40c1a2cfea663`.
+- The administrative API imported the package, and a fresh catalog read verified its application hash. One persisted request ID was used to queue the update. Initial readback: queued, device still reporting 0.4.9 with valid boot. Reconcile by reading rather than repeating the write.
+- Subsequent authenticated status confirmed the same paired device running 0.4.10, a valid boot, and a completed update operation. Installation is complete; physical screen behavior remains unverified. Private operation identifiers and diagnostics remain in the external development archive.
+
 ## 2026-10-13 — Quiet firmware update and startup (NIDO-020)
 
 - Native firmware tests pass with fictitious data, including repeated failed initial home requests, first success, explicit interaction/setup, and exact pixel preservation outside the update/error header slot.

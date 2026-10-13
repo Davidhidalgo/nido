@@ -4,9 +4,9 @@ Last reconciled: **2026-10-13**. This is the single register of current prioriti
 
 ## Resume point
 
-- **Current scope:** NIDO-020 implements quiet firmware updates and retained startup images locally in `9faa6e0`; publication and installation have not been requested for this change.
-- **Last delivery:** NIDO-019 firmware 0.4.9 remains the latest published and verified installed release. NIDO-018 calendar-save changes remain separate and uncommitted.
-- **Next concrete action:** review NIDO-020 delivery scope, then publish/install only when requested and observe the physical screen through restart and delayed connectivity.
+- **Current scope:** NIDO-020 is published as firmware 0.4.10 after user authorization; one OTA operation completed. Authenticated status confirms 0.4.10 and a valid boot; physical behavior awaits user observation.
+- **Last delivery:** Firmware 0.4.10 is the latest published release; the device also reports 0.4.10 with a valid boot. NIDO-018 calendar-save changes remain separate and uncommitted.
+- **Next concrete action:** the completed OTA needs no retry. Observe the physical screen through restart and delayed connectivity.
 - **Outstanding evidence:** physical startup flicker and retained-image behavior, plus NIDO-002 appearance checks.
 - **Priority:** NIDO-020; other entries are not an automatic implementation queue.
 
@@ -20,12 +20,12 @@ States: `implemented / unreleased`, `needs verification`, `proposed`, `parked`, 
 
 ### NIDO-020 — Quiet firmware updates and retained startup image
 
-- **Origin / state:** user request; implemented / unreleased.
+- **Origin / state:** user request; published and installed / physical verification pending.
 - **Reason:** retain the daily view during firmware download/install and startup instead of showing an update modal or empty summary.
 - **Implementation:** compact update/error header overlay; configured startup initializes the controller without refreshing and waits for a successful home response. Explicit voice/setup remains available. Boot validation is independent of network availability.
 - **Evidence:** native lifecycle and pixel regressions pass; see [verification](verification.md#2026-10-13--quiet-firmware-update-and-startup-nido-020). Physical behavior remains unverified.
-- **Next action:** publish and install only under a delivery request, then check retained image through restart and network failure. The current firmware's installer UI persists during the first upgrade; the new startup behavior applies immediately after that upgrade.
-- **Closure:** implementation and local validation complete; release, installation and physical observation are separate pending claims.
+- **Next action:** check retained image through restart and network failure. The current firmware's installer UI persists during the first upgrade; the new startup behavior applies immediately after that upgrade.
+- **Closure:** implementation, local validation and [publication](https://github.com/Davidhidalgo/nido/releases/tag/nido-ota-0.4.10) complete; installation completed with valid boot; physical observation remains pending. The signed draft and public downloads matched the local package; one authenticated OTA request was submitted.
 
 ### NIDO-002 — Physical verification of the latest NOTE4 behavior
 
