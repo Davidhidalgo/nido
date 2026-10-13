@@ -14,6 +14,8 @@ Fecha: 17 de septiembre de 2026. Equipo: macOS Apple Silicon. OpenClaw 2026.9.4,
 - The administrative API imported the package, and a fresh catalog read verified its application hash. One persisted request ID was used to queue the update. Initial readback: queued, device still reporting 0.4.9 with valid boot. Reconcile by reading rather than repeating the write.
 - Subsequent authenticated status confirmed the same paired device running 0.4.10, a valid boot, and a completed update operation. Installation is complete; physical screen behavior remains unverified. Private operation identifiers and diagnostics remain in the external development archive.
 
+- Subsequent user observation on 2026-10-13 confirmed that the 0.4.10 startup behaved as expected, retaining the previous image until the agenda returned. This is user-reported physical evidence. It does not establish the new installation indicator (the upgrade ran under 0.4.9), deliberate network-failure recovery, or forced rollback.
+
 ## 2026-10-13 — Quiet firmware update and startup (NIDO-020)
 
 - Native firmware tests pass with fictitious data, including repeated failed initial home requests, first success, explicit interaction/setup, and exact pixel preservation outside the update/error header slot.
