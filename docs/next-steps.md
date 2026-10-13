@@ -4,11 +4,11 @@ Last reconciled: **2026-10-13**. This is the single register of current prioriti
 
 ## Resume point
 
-- **Current scope:** NIDO-020 is published as firmware 0.4.10 after user authorization; one OTA operation completed. Authenticated status confirms 0.4.10 and a valid boot; the user confirmed the expected retained-screen startup on 2026-10-13.
-- **Last delivery:** Firmware 0.4.10 is the latest published release; the device also reports 0.4.10 with a valid boot. NIDO-018 calendar-save changes remain separate and uncommitted.
-- **Next concrete action:** the completed OTA needs no retry. Check the compact installation indicator during the next independently needed firmware update.
-- **Outstanding evidence:** compact installation indicator and deliberately failed-connectivity behavior, plus other NIDO-002 appearance checks.
-- **Priority:** no further implementation selected; remaining NIDO-020 observations do not authorize a test-only release.
+- **Current scope:** NIDO-003 English documentation pass, starting with the root README. The README translation and structural review are complete locally; broader guide translation remains open.
+- **Last delivery:** firmware 0.4.10 is published and installed, with retained startup confirmed by the user. NIDO-018 calendar-save changes remain separate and uncommitted.
+- **Next concrete action:** continue the documentation pass with `docs/getting-started.md`, preserving Spanish runtime/UI labels and checking each operational claim against the implementation.
+- **Outstanding evidence:** the compact installation indicator and deliberately failed-connectivity behavior remain NIDO-020 observations; no test-only release is needed.
+- **Priority:** NIDO-003 documentation; no runtime or hardware changes are implied.
 
 ## Reading states and origins
 
@@ -37,10 +37,11 @@ States: `implemented / unreleased`, `needs verification`, `proposed`, `parked`, 
 
 ### NIDO-003 — Reconcile historical documentation and English migration
 
-- **Origin / state:** English documentation is a user decision; a broad cleanup is an assistant proposal.
-- **Reason:** old plans and pending statements can mislead new sessions. Examples: the MVP plan predates public GitHub and NOTE4, and the maintenance guide still mentions waiting for the first repository/release. Package filename examples were aligned with 0.1.2 during NIDO-016; the broader cleanup remains unapproved.
-- **Next action:** select a bounded documentation pass, check each statement against code and dated evidence, and translate the directly revised sections into English. Preserve historical test results as historical.
-- **Closure:** selected current guides are consistent, with obsolete statements dated or replaced and remaining cleanup explicitly scoped. Do not claim the entire documentation set has been translated by this continuity change.
+- **Origin / state:** user-requested translation and improvement pass on 2026-10-13, starting with the root README; in progress.
+- **Completed scope:** [README](../README.md) translated into English, including symbolic comments and link labels. Installation, Google availability, NOTE4, development, private data and publication guidance are separated. Documentation links are grouped by topic; actual Spanish UI labels and the Spanish demo prompt are preserved.
+- **Evidence:** commands and requirements checked against `package.json`, setup/simulator sources and existing guides. Replaced the blanket claim that NOTE4 hardware operation was unverified with bounded dated evidence. Markdown formatting, local links, script references and whitespace checks passed. Documentation-only change; no runtime tests or private-installation access.
+- **Next action:** translate and review `getting-started.md`, then follow the README's linked guides in bounded passes. Existing guide content is not automatically current: check claims against source and dated verification.
+- **Closure:** the README pass is complete locally. The wider documentation migration remains open; preserve historical evidence and distinguish it from current behavior. No publication is implied by this request.
 
 ## Ideas and parked work
 

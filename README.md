@@ -1,83 +1,125 @@
 # Nido
 
-Asistente familiar sobre OpenClaw, centrado en menú y agenda con Google Calendar. La familia habla con Nido; internamente hay especialistas con permisos distintos.
+Nido is a family assistant built on OpenClaw for meal planning and shared calendars. You talk to Nido; it delegates to meal and agenda specialists with separate permissions. Start with demo calendars or connect Google Calendar. Telegram, TRMNL and NOTE4 are optional interfaces.
 
-## Estado
+Project documentation is written in English. The product interface and family-agent interactions currently use Spanish.
 
-<!-- Estado de implementación y límites descritos en docs/getting-started.md, docs/implementation-notes.md e integrations/trmnl/README.md -->
+## Install on an existing OpenClaw server
 
-Nido se añade a un OpenClaw existente mediante un paquete y una página nativa de configuración. El asistente crea Nido, Menú y Agenda, reutiliza la configuración del modelo y guarda los datos familiares fuera del paquete. Permite empezar en demo o conectar Google y elegir calendarios por nombre. Telegram, TRMNL y NOTE4 son opcionales.
+<!-- Installation and setup flow from integrations/nido-family/src/setup-admin.ts, integrations/nido-family/src/control-ui.ts and docs/getting-started.md -->
 
-La versión probada del host es OpenClaw 2026.9.8. La interfaz requiere activar Custom plugin UI en los Labs del host. La conexión usa la app de Google de Nido: el usuario pulsa **Conectar con Google** y autoriza su cuenta. El servicio compartido todavía debe desplegarse y configurarse antes de distribuir una versión con Google activo; la demo funciona sin él. Siri y las mediciones de batería de NOTE4 siguen pendientes.
-
-## Añadirlo a tu OpenClaw
-
-<!-- Instalación y asistente de integrations/nido-family/src/setup-admin.ts, integrations/nido-family/src/control-ui.ts y docs/getting-started.md -->
+Nido installs as a plugin and provides a native setup page. The wizard creates the `nido`, `menu` and `agenda` agents, reuses the host's model configuration and stores family data outside the package. This revision has been tested with **OpenClaw 2026.9.8**; its plugin APIs are experimental.
 
 <!-- Package filename matching integrations/nido-family/package.json name and version -->
 
-Download [plugin 0.1.2 from GitHub Releases](https://github.com/Davidhidalgo/nido/releases/tag/nido-plugin-0.1.2), verify its checksum, and install it on the OpenClaw server:
+1. Download the archive and checksum file from the [plugin 0.1.2 release](https://github.com/Davidhidalgo/nido/releases/tag/nido-plugin-0.1.2), then verify the archive's SHA-256.
+2. Install it on the machine running OpenClaw:
+
+   ```sh
+   openclaw plugins install ./openclaw-plugin-nido-family-0.1.2.tgz
+   ```
+
+3. Open the dashboard as an administrator, enable **Settings → Labs → Custom plugin UI**, and open **Nido**.
+4. Follow the wizard, review the configuration and save. Demo mode uses fictitious calendars and does not require Google.
+
+See [getting started](docs/getting-started.md) for setup, permissions and recovery from interrupted operations. The [plugin guide](docs/plugin-install.md) covers packaging from source and required capabilities. An [isolated profile](docs/standalone-install.md) is available for development or a separate deployment.
+
+### Google Calendar availability
+
+<!-- Implementation status and limits from docs/getting-started.md, docs/google-oauth-service.md and docs/next-steps.md -->
+
+The setup flow supports authorizing Nido's Google app and selecting calendars by name. Users do not need to create a Google Cloud project or upload a credentials file. However, the shared OAuth service still needs to be deployed and configured before this connection flow can be distributed with Google enabled. Until then, the wizard offers demo mode. Existing installations using the older Desktop credentials flow remain supported.
+
+### Documents and conversational memory
+
+<!-- Document tools from scripts/prepare-local.mjs, integrations/nido-family/src/setup.ts and agents/nido/AGENTS.md; memory isolation from scripts/note4.mjs -->
+
+Nido uses OpenClaw's `pdf` tool to read attachments before delegating. Plugin installations inherit the host's document limits; the isolated profile sets a limit of 10 MB and 20 pages per document.
+
+Optional conversational memory uses Honcho through its OpenClaw plugin. Local preparation preserves its configuration; the NOTE4 simulator disables Honcho to keep demo and family memories separate. See [conversational memory](docs/memory.md).
+
+## NOTE4
+
+<!-- Firmware commands and behavior from package.json, scripts/note4-firmware, firmware/note4/README.md and docs/verification.md -->
+
+The NOTE4 client provides voice interaction and an e-paper view of meals and calendar events. Its generic firmware stores Wi-Fi and pairing details on the device, outside the application partitions.
+
+Hold the front and lower buttons for five seconds to enter maintenance. After Wi-Fi setup, the device displays a six-digit pairing code; pair it through the plugin settings using local discovery or an IP address. Signed firmware updates are available through the plugin, the device's local web page, or directly from GitHub. Direct GitHub updates require acceptance with the upper button. Plugin-side GitHub downloads use `note4Maintenance.github.repository`.
+
+The firmware uses two application partitions with rollback support. The initial USB migration requires a complete, verified backup. Pairing and OTA have been exercised on hardware, and retained-screen startup was confirmed with firmware 0.4.10. Battery/runtime measurements, forced rollback and some display behaviors still need physical verification; consult the dated [verification log](docs/verification.md) for the scope of each result. See the [maintenance and OTA guide](docs/note4-maintenance.md) before working with a device.
+
+<!-- Bridge commands from package.json and scripts/note4-bridge.mjs -->
+
+`pnpm run note4:setup` prepares the HTTPS bridge. With the family Gateway running, `pnpm run note4:bridge` receives audio and serves cards over the local network using Nido's configured calendars. Add `-- --demo` to select the demo Gateway.
+
+<!-- NOTE4 simulation commands and isolation from package.json and scripts/note4.mjs -->
+
+To try the NOTE4 agent and inspect its JSON cards without hardware:
 
 ```sh
-openclaw plugins install ./openclaw-plugin-nido-family-0.1.2.tgz
+pnpm run note4:chat -- --message="¿Qué cenamos mañana?"
+pnpm run note4:dashboard
 ```
 
-Abre el dashboard como administrador, activa **Settings → Labs → Custom plugin UI**, entra en **Nido** y sigue el asistente. Para Google, autoriza la app de Nido; no necesitas crear un proyecto de Google Cloud ni cargar un JSON. Revisa antes de guardar; puedes empezar con calendarios ficticios. [Guía de instalación](docs/getting-started.md).
+The simulator uses separate demo calendars even when the family installation uses Google. It can still call the configured model API. See [NOTE4 conversations and card tests](docs/note4-voice.md).
 
-The [plugin guide](docs/plugin-install.md) describes packaging from source and required capabilities. The [isolated profile](docs/standalone-install.md) remains available for development or a separate deployment.
-
-<!-- Lectura de documentos configurada en scripts/prepare-local.mjs, integrations/nido-family/src/setup.ts y agents/nido/AGENTS.md -->
-
-Nido usa la herramienta `pdf` de OpenClaw para leer adjuntos antes de delegar. El plugin hereda los límites del host; el perfil aislado configura 10 MB y 20 páginas por documento.
-
-<!-- Comandos NOTE4 de package.json y aislamiento en scripts/note4.mjs -->
-
-Para probar el agente NOTE4 y ver sus tarjetas JSON: `pnpm run note4:chat -- --message="¿Qué cenamos mañana?"`. Usa calendarios demo separados incluso si Nido está conectado a Google. `pnpm run note4:dashboard` permite inspeccionar después la conversación en su dashboard demo. [Instrucciones y límites](docs/note4-voice.md).
-
-<!-- Comandos de firmware en package.json, scripts/note4-firmware y firmware/note4/README.md -->
-
-El firmware conectado genérico admite configuración por punto de acceso propio (frontal + inferior cinco segundos) y OTA firmada desde los ajustes administrativos del plugin o la web local. Tras guardar la Wi-Fi, muestra un código de seis dígitos para vincularlo desde los ajustes del plugin, con búsqueda local y alternativa por IP. Desde `nido-ota-0.4.2`, el NOTE4 consulta directamente la última release pública de `Davidhidalgo/nido` al entrar en mantenimiento y pide aceptación con el botón superior antes de instalar. El plugin también puede obtener el firmware firmado de la última release de GitHub cuando se configura `note4Maintenance.github.repository`. Conserva Wi-Fi y vinculación en una partición propia, con dos aplicaciones y rollback. Requiere una primera migración USB respaldada; funcionamiento físico pendiente de verificación. [Guía de mantenimiento y OTA](docs/note4-maintenance.md).
-
-`pnpm run note4:setup` prepara el puente HTTPS y `pnpm run note4:bridge` recibe audio y sirve tarjetas en la red local, con el Gateway familiar arrancado. Usa los calendarios de Google ya configurados en Nido; `pnpm run note4:bridge -- --demo` selecciona el Gateway demo. `pnpm run test:note4-firmware` verifica audio, renderizado y protecciones del respaldo en el Mac. `pnpm run note4:firmware build` compila la prueba para NOTE4; el flasheo exige primero un respaldo completo y verificado. [Firmware y prueba de batería](firmware/note4/README.md).
-
-## Documentación
-
-<!-- Documentos existentes en docs/ -->
-
-- [Next steps and session handoff](docs/next-steps.md).
-- [Session workflow](docs/session-workflow.md).
-- [Local HTTPS access to OpenClaw](docs/local-control-url.md).
-- [Arquitectura](docs/architecture.md).
-- [Memoria conversacional con Honcho](docs/memory.md).
-- [Guía para desarrollar y diagnosticar](docs/development.md).
-- [Organización de datos y archivos privados](docs/data-layout.md).
-- [Plugin instalable en OpenClaw](docs/plugin-install.md).
-- [Servicio OAuth compartido y publicación de la app de Google](docs/google-oauth-service.md).
-- [Privacidad y preparación para GitHub](docs/privacy.md).
-- [Plan del MVP y respaldos aplazados](docs/implementation-plan.md).
-- [Instalación y configuración familiar](docs/getting-started.md).
-- [Perfil aislado para desarrollo o un servidor independiente](docs/standalone-install.md).
-- [Decisiones de implementación y datos locales](docs/implementation-notes.md).
-- [Resultado de verificación](docs/verification.md).
-- [Conversación NOTE4 y pruebas de tarjetas JSON](docs/note4-voice.md).
-- [Sistema de diseño del NOTE4](docs/note4-design-system.md).
-
-## Desarrollo
-
-<!-- Scripts de calidad definidos en package.json -->
-
-`pnpm test`, `pnpm run typecheck`, `pnpm run lint`, `pnpm run format:check` y `pnpm run build`. `pnpm run test:plugin:isolated` instala el paquete en un host temporal con un agente existente y verifica el asistente. `pnpm run test:gateway:isolated` verifica permisos y operaciones contra un Gateway demo temporal, sin leer la instalación familiar.
+## Development
 
 <!-- Development entry points and priority ownership from AGENTS.md, docs/session-workflow.md and docs/next-steps.md -->
 
-Start development with [AGENTS.md](AGENTS.md), the [session workflow](docs/session-workflow.md), and the [current resume point](docs/next-steps.md). Check actual Git state before continuing; the register owns current priorities and links to technical plans and evidence. The [development guide](docs/development.md) uses fictitious data and requires neither past chats nor private diagnostics.
+Start with [AGENTS.md](AGENTS.md), the [session workflow](docs/session-workflow.md) and the [current resume point](docs/next-steps.md). Check actual Git state before continuing. The register owns current priorities; technical guides hold implementation details and dated evidence. Development uses fictitious data and requires neither past chats nor private diagnostics.
 
-<!-- Estado privado de scripts/private-state.mjs y preparación de scripts/prepare-local.mjs -->
+<!-- Runtime requirements and quality scripts from package.json and docs/development.md -->
 
-La memoria conversacional opcional usa Honcho mediante su plugin de OpenClaw. La preparación conserva su configuración; el simulador NOTE4 desactiva Honcho para evitar mezclar recuerdos demo y familiares. Véase [memoria conversacional](docs/memory.md).
+Use **Node 24.16+ from the 24.x line** and **pnpm 9.0.5**. Follow the [development guide](docs/development.md) to install the local runtime and dependencies, then run:
 
-El plugin integrado guarda datos bajo `<estado-de-OpenClaw>/nido-family/`. En el perfil aislado del repositorio, los datos privados viven en `~/.openclaw/nido/` (o el `NIDO_HOME` elegido al configurar). `.local` es un enlace ignorado hacia ese directorio. Las instrucciones públicas contienen solo reglas genéricas; los miembros y horarios se añaden en workspaces privados. Las preferencias alimentarias se guardan hablando con el agente. Las familias demo permanecen en ese estado; el archivo privado de desarrollo y las cachés tienen otra función, descrita en [la organización de datos](docs/data-layout.md).
+```sh
+pnpm test
+pnpm run typecheck
+pnpm run lint
+pnpm run format:check
+pnpm run build
+```
 
-<!-- Comprobación y empaquetado de scripts/release-check.mjs, config/public-assets.json y scripts/pack-plugin.mjs -->
+Additional checks depend on the change:
 
-Antes de publicar ejecuta `pnpm run release:check`: revisa archivos, índice e historial de publicación sin abrir el estado privado. Los binarios públicos deben coincidir con los hashes revisados de `config/public-assets.json`; las imágenes de diseño y sonidos del dispositivo usan datos ficticios o sintéticos. Revisa también el texto libre y la identidad del primer commit según [la guía de privacidad](docs/privacy.md). `pnpm run plugin:pack` genera el paquete en `release/` con una lista explícita de archivos. No publica en npm ni GitHub.
+| Check                                   | Purpose                                                                                                                    |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm run test:gateway:isolated`        | Test permissions and operations against a temporary demo Gateway without reading the family installation.                  |
+| `pnpm run test:plugin:isolated`         | Install the packaged plugin in a temporary host with an existing agent and verify setup. Run `pnpm run plugin:pack` first. |
+| `pnpm run test:note4-firmware`          | Run native firmware tests and generate fictitious screen previews with the local SDK. Required for screen or C++ changes.  |
+| `pnpm run note4:firmware build-generic` | Build the generic connected client without private device configuration. Compilation does not verify physical operation.   |
+
+Firmware builds and tests do not flash a device. Follow the [firmware guide](firmware/note4/README.md) and its backup requirements for hardware work.
+
+### Private data
+
+<!-- Private state layout from scripts/private-state.mjs, scripts/prepare-local.mjs and docs/data-layout.md -->
+
+Plugin installations store data under `<OpenClaw-state>/nido-family/`. The repository's isolated profile uses `~/.openclaw/nido/`, or the `NIDO_HOME` chosen during setup; `.local` is an ignored link to that directory.
+
+Public agent templates contain generic rules only. Family members and schedules belong in private workspaces; food preferences are saved through conversation with the agent. Demo families are persistent installation state, not disposable caches. Private diagnostics belong in the external development archive; regenerable test output belongs in `.cache/`. See [data layout](docs/data-layout.md) before moving or deleting files.
+
+### Preparing a release
+
+<!-- Publication scan and packaging from scripts/release-check.mjs, config/public-assets.json and scripts/pack-plugin.mjs -->
+
+Run `pnpm run release:check` before publication. It scans publishable files, the index and publication history without opening private state. Public binaries must match the reviewed hashes in `config/public-assets.json`; design images and device sounds use fictitious or synthetic content. Also review free-form text and commit identity using the [privacy guide](docs/privacy.md).
+
+`pnpm run plugin:pack` builds an archive in `release/` from an explicit file list. It does not publish to npm or GitHub.
+
+## Documentation
+
+<!-- Documentation entry points that exist in docs/ and integration/firmware directories -->
+
+| Topic                      | Guides                                                                                                                                                                                                                                  |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Installation               | [Getting started](docs/getting-started.md), [plugin installation](docs/plugin-install.md), [isolated deployment](docs/standalone-install.md)                                                                                            |
+| Design and implementation  | [Architecture](docs/architecture.md), [implementation decisions](docs/implementation-notes.md), [MVP plan and deferred backups](docs/implementation-plan.md)                                                                            |
+| Development and continuity | [Development and diagnostics](docs/development.md), [next steps](docs/next-steps.md), [session workflow](docs/session-workflow.md), [verification history](docs/verification.md)                                                        |
+| Data and privacy           | [Data layout](docs/data-layout.md), [privacy and publication](docs/privacy.md), [conversational memory](docs/memory.md)                                                                                                                 |
+| Services and access        | [Shared Google OAuth service](docs/google-oauth-service.md), [local HTTPS access](docs/local-control-url.md)                                                                                                                            |
+| NOTE4                      | [Voice and JSON cards](docs/note4-voice.md), [design system](docs/note4-design-system.md), [firmware](firmware/note4/README.md), [maintenance and OTA](docs/note4-maintenance.md), [GitHub OTA contract](docs/note4-github-ota-spec.md) |
+| TRMNL                      | [Integration and previews](integrations/trmnl/README.md)                                                                                                                                                                                |
+
+Some linked guides are still being translated into English. Current priorities and outstanding work, including Siri integration, are tracked in [next steps](docs/next-steps.md).
